@@ -379,7 +379,7 @@ import {
 npx react-effectless init
 ```
 
-Appends `react-effectless` usage rules to `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/`, and `.github/copilot-instructions.md` so AI agents in your project stop generating `useEffect` anti-patterns.
+Writes a `useEffect` policy into `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/`, and `.github/copilot-instructions.md` so AI agents stop generating anti-patterns. See [Agent instructions](#agent-instructions) for details.
 
 ---
 
@@ -495,6 +495,53 @@ function Toast({ onDismiss }) {
 Same stale-closure bug [documented by Abramov](https://overreacted.io/making-setinterval-declarative-with-react-hooks/) as `useInterval`, plus `clearTimeout` is easy to forget. Set `delay` to `null` to cancel.
 
 </details>
+
+## Agent instructions
+
+AI coding agents (Claude Code, Cursor, GitHub Copilot, OpenAI Codex) reach for `useEffect` by default. Running the bootstrapper once injects a policy section into every agent instruction file in your project so they use the right patterns from the start.
+
+### Setup
+
+```sh
+npx react-effectless init
+```
+
+Run this once from the root of your project. It writes or appends to:
+
+| File                                                    | Agent                                         |
+| ------------------------------------------------------- | --------------------------------------------- |
+| `CLAUDE.md`                                             | Claude Code                                   |
+| `AGENTS.md`                                             | OpenAI Codex                                  |
+| `.cursor/rules/react-effectless.md`                     | Cursor                                        |
+| `.github/copilot-instructions.md`                       | GitHub Copilot                                |
+| `.github/instructions/react-effectless.instructions.md` | GitHub Copilot (scoped to `**/*.ts,**/*.tsx`) |
+
+For files that already exist the policy is **appended** — your existing instructions are preserved. For Cursor and the scoped Copilot file the rule is **created only if the file does not yet exist**, so a manually maintained file is never overwritten.
+
+Re-running the command is safe: it detects the `<!-- react-effectless -->` marker and skips any file that already contains it.
+
+### What gets injected
+
+Each file receives a policy block that tells the agent:
+
+- Never write `useEffect` directly
+- Which hook or pattern to use for each case (`useOnMount`, `useEventSubscription`, `useDebounce`, `useInterval`, `useTimeout`, `useMemo`, inline derivation, event handlers)
+- The full anti-pattern table with the matching ESLint rule for each case
+- Hook signatures for autocomplete-style reference
+
+The raw templates live in [`agent-skills/`](./agent-skills/) if you want to inspect or customize them before running init.
+
+### Manual setup
+
+If you prefer not to use the CLI, copy the relevant template from [`agent-skills/`](./agent-skills/) and paste it into your existing instruction file:
+
+```sh
+# Claude Code
+cat node_modules/react-effectless/agent-skills/CLAUDE.md >> CLAUDE.md
+
+# Cursor
+cp node_modules/react-effectless/agent-skills/cursor-rules.md .cursor/rules/react-effectless.md
+```
 
 ## Development
 

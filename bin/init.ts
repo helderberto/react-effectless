@@ -54,8 +54,8 @@ function run(): void {
 
   console.log('react-effectless init\n')
 
-  appendSection(join(cwd, 'CLAUDE.md'), readTemplate('claude.md'))
-  appendSection(join(cwd, 'AGENTS.md'), readTemplate('agents.md'))
+  appendSection(join(cwd, 'CLAUDE.md'), readTemplate('CLAUDE.md'))
+  appendSection(join(cwd, 'AGENTS.md'), readTemplate('AGENTS.md'))
   appendSection(
     join(cwd, '.github', 'copilot-instructions.md'),
     readTemplate('copilot-instructions.md'),
