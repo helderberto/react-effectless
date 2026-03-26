@@ -52,7 +52,8 @@ react-effectless/
 │   │   │       ├── no-effect-notify-parent.ts
 │   │   │       ├── no-effect-pass-data-parent.ts
 │   │   │       └── no-effect-app-init.ts
-│   │   └── tests/
+│   │   └── __tests__/
+│   │       ├── utils/
 │   │       └── rules/
 │   └── hooks/
 │       ├── src/
@@ -64,7 +65,7 @@ react-effectless/
 │       │   ├── use-analytics.ts
 │       │   ├── use-external-widget.ts
 │       │   └── use-derived-state.ts
-│       └── tests/
+│       └── __tests__/
 ├── agent-skills/
 │   ├── claude.md
 │   ├── copilot-instructions.md
@@ -72,6 +73,7 @@ react-effectless/
 │   └── agents.md
 ├── bin/
 │   └── init.ts
+├── SPEC.md
 ├── package.json
 ├── vitest.workspace.ts
 └── tsconfig.base.json
@@ -237,15 +239,18 @@ Strict TDD (red-green-refactor) for every feature. Write failing tests first.
 
 `RuleTester` (ESLint built-in) run via Vitest. Per rule: **≥5 valid cases + ≥5 invalid cases**.
 
-Edge cases required per rule:
+Required edge cases per rule:
 
 - Renamed import: `import { useEffect as ue } from 'react'`
 - Nested component inside component
 - Custom hook that internally calls `useEffect` (must not be flagged)
 
+Rule tests use `Rule.RuleModule` for full type inference — no `any`, no `unknown` in test rule definitions:
+
 ```ts
 import { RuleTester } from 'eslint'
-import rule from '../../src/rules/no-derived-state'
+import type { Rule } from 'eslint'
+import rule from '@/rules/no-derived-state'
 
 const tester = new RuleTester({
   languageOptions: {
@@ -263,6 +268,19 @@ tester.run('no-derived-state', rule, {
 })
 ```
 
+Utility function tests drive behavior via `context.report()` + `messageId` — stubs that return wrong values cause the test to fail, confirming the red phase:
+
+```ts
+const rule: Rule.RuleModule = {
+  meta: { type: 'suggestion', schema: [], messages: { yes: 'yes' } },
+  create: (context) => ({
+    CallExpression(node) {
+      if (isUseEffectCall(node)) context.report({ node, messageId: 'yes' })
+    },
+  }),
+}
+```
+
 ### Hooks
 
 `@testing-library/react` (v13.1+ — `renderHook` is now part of this package; `@testing-library/react-hooks` is deprecated) + Vitest + jsdom.
@@ -275,11 +293,69 @@ expect(result.current.isLoading).toBe(true)
 await waitFor(() => expect(result.current.data).toEqual({ id: 1 }))
 ```
 
+Required edge cases per hook:
+
+- StrictMode double-invocation behavior
+- Cleanup / unmount
+- Dependency change triggering re-run
+
 **Coverage target: 100%.** Every hook, every branch, every edge case.
+
+### Mocking
+
+Prefer `vi.spyOn` over `vi.mock`. Use `vi.mock` only when module-level hoisting is strictly required (i.e., the import itself must be intercepted before execution). For all other cases — replacing a method, observing calls, faking a return value — use `vi.spyOn`.
+
+### Vitest globals
+
+All packages set `globals: true` in `vitest.config.ts`. Do not import `describe`, `it`, `expect`, `vi` from `'vitest'` in test files. Each package's `tsconfig.json` includes `"types": ["vitest/globals"]`.
+
+---
+
+## TypeScript
+
+No `any`. Use specific types where possible; fall back to `unknown` when the type cannot be determined. For ESLint rule authors, type rule objects as `Rule.RuleModule` to get full inference on `context` and node visitor parameters.
 
 ---
 
 ## Developer Tooling
+
+### Path alias
+
+Every package resolves `@/` → `./src/`. Configured in two places per package:
+
+**`tsconfig.json`:**
+
+```json
+{
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] },
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "__tests__"]
+}
+```
+
+**`vitest.config.ts`:**
+
+```ts
+import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
+export default defineConfig({
+  resolve: {
+    alias: { '@': resolve(__dirname, 'src') },
+  },
+})
+```
+
+Use `@/` in all imports within a package:
+
+```ts
+import rule from '@/rules/no-derived-state'
+import { isUseEffectCall } from '@/utils/ast'
+```
 
 ### ESLint
 
@@ -461,7 +537,7 @@ jobs:
 
 ## Implementation Sequence
 
-### Phase 1 — Scaffolding
+### Phase 1 — Scaffolding ✓
 
 1. Root `package.json` with npm workspaces (`packages/*`)
 2. `tsconfig.base.json`
