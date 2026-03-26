@@ -9,10 +9,8 @@
 **Solution:** Three deliverables working together:
 
 1. `eslint-plugin-react-effectless` — lint rules that detect anti-patterns and suggest alternatives
-2. `react-effectless` — a small set of hooks for the `useEffect` patterns where rolling your own reliably introduces bugs
+2. `react-effectless` — hooks for `useOnMount`, `useEventSubscription`, `useDebounce`, `useInterval`, and `useTimeout`
 3. `npx react-effectless init` — CLI that bootstraps AI agent instructions into consumer projects
-
-> The primary value is the ESLint plugin and agent skills. The hooks cover only the narrow cases not handled by purpose-built libraries (TanStack Query, `useSyncExternalStore`, etc.).
 
 **References:**
 
@@ -158,7 +156,7 @@ Config lives in `packages/eslint-plugin/vite.config.ts`.
 
 ### Hooks
 
-Five hooks covering the `useEffect` patterns where rolling your own reliably introduces bugs. For data fetching, use [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview).
+Five hooks replacing the most common `useEffect` patterns. For data fetching, use [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview).
 
 | Hook                   | Signature                                                                        | Replaces                       | Hidden footgun prevented                                      |
 | ---------------------- | -------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------- |
