@@ -9,8 +9,10 @@
 **Solution:** Three deliverables working together:
 
 1. `eslint-plugin-react-effectless` — lint rules that detect anti-patterns and suggest alternatives
-2. `react-effectless` — hooks that cover every legitimate `useEffect` use case
+2. `react-effectless` — a small set of hooks for the `useEffect` patterns where rolling your own reliably introduces bugs
 3. `npx react-effectless init` — CLI that bootstraps AI agent instructions into consumer projects
+
+> The primary value is the ESLint plugin and agent skills. The hooks cover only the narrow cases not handled by purpose-built libraries (TanStack Query, `useSyncExternalStore`, etc.).
 
 **References:**
 
@@ -59,12 +61,10 @@ react-effectless/
 │       ├── src/
 │       │   ├── index.ts
 │       │   ├── use-on-mount.ts
-│       │   ├── use-fetch.ts
-│       │   ├── use-external-sync.ts
 │       │   ├── use-event-subscription.ts
-│       │   ├── use-analytics.ts
-│       │   ├── use-external-widget.ts
-│       │   └── use-derived-state.ts
+│       │   ├── use-debounce.ts
+│       │   ├── use-interval.ts
+│       │   └── use-timeout.ts
 │       └── __tests__/
 ├── agent-skills/
 │   ├── claude.md
@@ -158,7 +158,7 @@ Config lives in `packages/eslint-plugin/vite.config.ts`.
 
 ### Hooks
 
-Four hooks covering the `useEffect` patterns where rolling your own reliably introduces bugs. For data fetching, use [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview).
+Five hooks covering the `useEffect` patterns where rolling your own reliably introduces bugs. For data fetching, use [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview).
 
 | Hook                   | Signature                                                                        | Replaces                       | Hidden footgun prevented                                      |
 | ---------------------- | -------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------- |
@@ -214,8 +214,10 @@ NEVER use useEffect directly. Use the right tool for each case:
 - Mount-only side effect → useOnMount() from react-effectless
 - Data fetching → TanStack Query or RTK Query
 - DOM event listener → useEventSubscription() from react-effectless
+- Debounced value → useDebounce() from react-effectless
+- Repeating interval → useInterval() from react-effectless
+- One-shot timeout → useTimeout() from react-effectless
 - External store sync → useSyncExternalStore() (built into React 18+)
-- Third-party widget → useExternalWidget() from react-effectless
 - Derived/computed value → inline `const x = compute(a, b)` or useMemo
 
 If none of these fit, the logic belongs in an event handler, not an effect.
@@ -553,8 +555,8 @@ jobs:
 
 ### Phase 2 — ESLint Plugin (TDD, simplest rules first)
 
-1. AST utilities (`ast.ts`, `scope.ts`, `dependency.ts`) — tests written first
-2. `no-derived-state` — reference implementation establishing rule pattern
+1. ✓ AST utilities (`ast.ts`, `scope.ts`, `dependency.ts`) — tests written first
+2. ✓ `no-derived-state` — reference implementation establishing rule pattern
 3. `no-effect-memo`
 4. `no-effect-app-init`
 5. `no-effect-reset-state`, `no-effect-adjust-state`
