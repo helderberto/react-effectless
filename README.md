@@ -39,7 +39,7 @@ function Counter() {
 // Fix: move the handler to where it belongs — the event binding
 function Counter() {
   const [count, setCount] = useState(0)
-  useEventSubscription(window, 'keydown', () => console.log(count))
+  useEventSubscription({ target: window, event: 'keydown', handler: () => console.log(count) })
 }
 ```
 
@@ -55,9 +55,12 @@ function UserList({ search }) {
   }, [search])
 }
 
-// Fix: useFetch handles AbortController and race conditions automatically
+// Fix: use a data-fetching library that handles this correctly
 function UserList({ search }) {
-  const { data: users } = useFetch(`/api/users?q=${search}`)
+  const { data: users } = useQuery({
+    queryKey: ['users', search],
+    queryFn: () => fetchUsers(search),
+  })
 }
 ```
 
@@ -66,15 +69,16 @@ The pattern is widespread enough that teams have started banning `useEffect` out
 <details>
 <summary>Hook replacements for every legitimate useEffect use case</summary>
 
-| Instead of…                                  | Use                                                   |
-| -------------------------------------------- | ----------------------------------------------------- |
-| `useEffect(fn, [])` for mount-only logic     | `useOnMount(fn)`                                      |
-| `useEffect` + `fetch`                        | `useFetch(url)`                                       |
-| `useEffect` + `addEventListener`             | `useEventSubscription(target, event, handler)`        |
-| `useEffect` + external store subscription    | `useExternalSync(subscribe, getSnapshot)`             |
-| `useEffect` for page-view analytics          | `useAnalytics(event, props)`                          |
-| `useEffect` + third-party DOM library        | `useExternalWidget(factory, props)`                   |
-| `useEffect` + `setState` for a derived value | `useDerivedState(derive, deps)` or inline calculation |
+| Instead of…                                  | Use                                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `useEffect(fn, [])` for mount-only logic     | `useOnMount(fn)`                                                                                             |
+| `useEffect` + `fetch`                        | [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview) |
+| `useEffect` + `addEventListener`             | `useEventSubscription({ target, event, handler })`                                                           |
+| `useEffect` + `setTimeout` for debouncing    | `useDebounce({ value, delay })`                                                                              |
+| `useEffect` + `setInterval`                  | `useInterval({ callback, delay })`                                                                           |
+| `useEffect` + `setTimeout` (one-shot)        | `useTimeout({ callback, delay })`                                                                            |
+| `useEffect` + external store subscription    | `useSyncExternalStore` (built into React 18+)                                                                |
+| `useEffect` + `setState` for a derived value | inline `const x = compute(a, b)` or `useMemo`                                                                |
 
 </details>
 
@@ -102,18 +106,122 @@ All rules are `"warn"` in the recommended config. No autofixes — suggestions o
 
 `useEffect` is the right tool for genuine side effects: syncing with external systems, setting up subscriptions, integrating third-party DOM libraries. That use case is real and valid.
 
-The goal is to stop reaching for it _instead of_ simpler patterns — derived state, event handlers, `useMemo` — where it introduces unnecessary complexity and bugs. When you do need an effect, the hooks in this library wrap the boilerplate correctly so the footguns (race conditions, missing cleanup, StrictMode double-invocation) are handled for you.
+The goal is to stop reaching for it _instead of_ simpler patterns — derived state, event handlers, `useMemo` — where it introduces unnecessary complexity and bugs. When you do need an effect, the hooks in this library (`useOnMount`, `useEventSubscription`, `useDebounce`, `useInterval`, `useTimeout`) wrap the genuinely legitimate cases so the common footguns (stale closures, missing cleanup, listeners re-added every render) are handled for you.
 
 `react-effectless` makes the right patterns the path of least resistance.
 
 ## Packages
 
-| Package                          | Description                                                                  |
-| -------------------------------- | ---------------------------------------------------------------------------- |
-| `eslint-plugin-react-effectless` | 10 lint rules that detect `useEffect` anti-patterns and suggest alternatives |
-| `react-effectless`               | Hooks that cover every legitimate `useEffect` use case                       |
+| Package                          | Description                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `eslint-plugin-react-effectless` | 10 lint rules that detect `useEffect` anti-patterns and suggest alternatives     |
+| `react-effectless`               | A small set of hooks for the cases where `useEffect` is genuinely the right tool |
 
 The monorepo also ships `npx react-effectless init`, a CLI that writes agent instruction files (CLAUDE.md, Cursor rules, Copilot instructions) into consumer projects so AI agents stop generating the same anti-patterns.
+
+The goal is not to replace every `useEffect` with a custom hook — for data fetching, reach for [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview). The hooks in `react-effectless` only cover the patterns where rolling your own with `useEffect` reliably introduces bugs.
+
+## Hooks
+
+<details>
+<summary><code>useOnMount(cb)</code> — run once on mount</summary>
+
+```tsx
+import { useOnMount } from 'react-effectless'
+
+function Modal({ onOpen }) {
+  useOnMount(() => {
+    onOpen()
+    return () => console.log('unmounted')
+  })
+}
+```
+
+Replaces `useEffect(fn, [])`. Makes intent explicit and handles StrictMode-safe cleanup.
+
+</details>
+
+<details>
+<summary><code>useEventSubscription({ target, event, handler })</code> — DOM event listener</summary>
+
+```tsx
+import { useEventSubscription } from 'react-effectless'
+
+function KeyLogger() {
+  const [key, setKey] = useState('')
+
+  useEventSubscription({
+    target: window,
+    event: 'keydown',
+    handler: (e) => setKey(e.key),
+  })
+
+  return <p>Last key: {key}</p>
+}
+```
+
+Without this hook, an inline handler reference changes every render — the listener is removed and re-added on every render. `useEventSubscription` stabilizes the handler ref internally.
+
+</details>
+
+<details>
+<summary><code>useDebounce({ value, delay })</code> — debounce a rapidly changing value</summary>
+
+```tsx
+import { useDebounce } from 'react-effectless'
+
+function Search({ query }) {
+  const debouncedQuery = useDebounce({ value: query, delay: 300 })
+
+  useEffect(() => {
+    // only fires 300ms after the user stops typing
+    fetchResults(debouncedQuery)
+  }, [debouncedQuery])
+}
+```
+
+Rolling your own with `useEffect` + `setTimeout` misses `clearTimeout` on rapid changes, causing stale results to flash in.
+
+</details>
+
+<details>
+<summary><code>useInterval({ callback, delay })</code> — repeating interval</summary>
+
+```tsx
+import { useInterval } from 'react-effectless'
+
+function Clock() {
+  const [time, setTime] = useState(new Date())
+
+  useInterval({
+    callback: () => setTime(new Date()),
+    delay: 1000,
+  })
+
+  return <p>{time.toLocaleTimeString()}</p>
+}
+```
+
+The classic footgun from [Dan Abramov's post](https://overreacted.io/making-setinterval-declarative-with-react-hooks/): a raw `useEffect` + `setInterval` captures the initial value of `callback` in a stale closure. `useInterval` always calls the latest version.
+
+</details>
+
+<details>
+<summary><code>useTimeout({ callback, delay })</code> — one-shot delayed action</summary>
+
+```tsx
+import { useTimeout } from 'react-effectless'
+
+function Toast({ onDismiss }) {
+  useTimeout({ callback: onDismiss, delay: 3000 })
+
+  return <div className="toast">Saved!</div>
+}
+```
+
+Same stale-closure bug [documented by Abramov](https://overreacted.io/making-setinterval-declarative-with-react-hooks/) as `useInterval`, plus `clearTimeout` is easy to forget. Set `delay` to `null` to cancel.
+
+</details>
 
 ## Development
 

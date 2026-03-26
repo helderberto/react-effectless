@@ -89,13 +89,13 @@ react-effectless/
 
 Each module exposes a **simple interface** that hides significant complexity (Ousterhout, _A Philosophy of Software Design_).
 
-| Surface       | One-liner API                                   | Hidden complexity                                     |
-| ------------- | ----------------------------------------------- | ----------------------------------------------------- |
-| ESLint plugin | `[reactEffectless.configs['flat/recommended']]` | 10 rules, AST analysis, scope resolution, dep graph   |
-| Hooks         | `const { data } = useFetch('/api/users')`       | AbortController, race conditions, StrictMode          |
-| Agent skills  | `npx react-effectless init`                     | 4 agent formats, non-destructive append, path-scoping |
+| Surface       | One-liner API                                      | Hidden complexity                                     |
+| ------------- | -------------------------------------------------- | ----------------------------------------------------- |
+| ESLint plugin | `[reactEffectless.configs['flat/recommended']]`    | 10 rules, AST analysis, scope resolution, dep graph   |
+| Hooks         | `useEventSubscription({ target, event, handler })` | Stable handler ref, StrictMode-safe cleanup           |
+| Agent skills  | `npx react-effectless init`                        | 4 agent formats, non-destructive append, path-scoping |
 
-**Hook API constraint:** 1–3 parameters max. Config via a single options object with smart defaults.
+**Hook API constraint:** All hooks accept a single options object. No positional arguments beyond the first callback parameter.
 
 ### No Build Step (consumer-side)
 
@@ -158,20 +158,19 @@ Config lives in `packages/eslint-plugin/vite.config.ts`.
 
 ### Hooks
 
-| Hook                   | Signature                                                             | Replaces                                  | Notes                                           |
-| ---------------------- | --------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------- |
-| `useOnMount`           | `(cb: () => void \| (() => void)) => void`                            | `useEffect(fn, [])`                       | StrictMode-safe                                 |
-| `useFetch<T>`          | `(url: string \| null, opts?) => { data, error, isLoading, refetch }` | `useEffect` + fetch                       | AbortController, race condition prevention      |
-| `useExternalSync<T>`   | `(subscribe, getSnapshot, getServerSnapshot?) => T`                   | `useEffect` + external store              | Wraps `useSyncExternalStore` (React 18+)        |
-| `useEventSubscription` | `(target, event, handler, opts?) => void`                             | `useEffect` + addEventListener            | Stable handler ref, auto-cleanup                |
-| `useAnalytics`         | `(event, props?, opts?) => { track }`                                 | `useEffect` for page-view events          | Fires once in StrictMode                        |
-| `useExternalWidget<T>` | `(factory, props) => RefCallback<T>`                                  | `useEffect` + third-party DOM lib         | Manages init/update/destroy lifecycle           |
-| `useDerivedState<T>`   | `(derive: () => T, deps) => T`                                        | `useEffect` + setState for derived values | Intentional `useMemo` — signals "derived state" |
+Four hooks covering the `useEffect` patterns where rolling your own reliably introduces bugs. For data fetching, use [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview).
+
+| Hook                   | Signature                                                                        | Replaces                       | Hidden footgun prevented                                      |
+| ---------------------- | -------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------- |
+| `useOnMount`           | `(cb: () => void \| (() => void)) => void`                                       | `useEffect(fn, [])`            | Makes intent explicit; StrictMode-safe cleanup                |
+| `useEventSubscription` | `({ target, event, handler, options? }) => void`                                 | `useEffect` + addEventListener | Stable handler ref — prevents listener re-added every render  |
+| `useDebounce<T>`       | `({ value, delay }: { value: T; delay: number }) => T`                           | `useEffect` + setTimeout       | Stale closure + missing clearTimeout on rapid change          |
+| `useInterval`          | `({ callback, delay }: { callback: () => void; delay: number \| null }) => void` | `useEffect` + setInterval      | Stale closure in interval — callback always sees latest value |
+| `useTimeout`           | `({ callback, delay }: { callback: () => void; delay: number \| null }) => void` | `useEffect` + setTimeout       | Stale closure in one-shot timeout + missing clearTimeout      |
 
 ### React version targeting
 
 - All hooks: `peerDependencies: { react: ">=16.8.0" }`
-- `useExternalSync` requires React 18+ (`useSyncExternalStore`). Documented clearly; throws a descriptive error on earlier versions.
 
 ### No build step
 
@@ -210,15 +209,14 @@ Non-destructively appends `react-effectless` sections to agent instruction files
 ```markdown
 ## useEffect Policy
 
-NEVER use useEffect directly. Use these hooks from react-effectless:
+NEVER use useEffect directly. Use the right tool for each case:
 
-- Mount-only side effect → useOnMount()
-- Data fetching → useFetch()
-- DOM event listener → useEventSubscription()
-- External store sync → useExternalSync()
-- Analytics tracking → useAnalytics()
-- Third-party widget → useExternalWidget()
-- Derived/computed value → inline calculation or useDerivedState()
+- Mount-only side effect → useOnMount() from react-effectless
+- Data fetching → TanStack Query or RTK Query
+- DOM event listener → useEventSubscription() from react-effectless
+- External store sync → useSyncExternalStore() (built into React 18+)
+- Third-party widget → useExternalWidget() from react-effectless
+- Derived/computed value → inline `const x = compute(a, b)` or useMemo
 
 If none of these fit, the logic belongs in an event handler, not an effect.
 ```
@@ -286,11 +284,14 @@ const rule: Rule.RuleModule = {
 `@testing-library/react` (v13.1+ — `renderHook` is now part of this package; `@testing-library/react-hooks` is deprecated) + Vitest + jsdom.
 
 ```ts
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 
-const { result } = renderHook(() => useFetch('/api/data'))
-expect(result.current.isLoading).toBe(true)
-await waitFor(() => expect(result.current.data).toEqual({ id: 1 }))
+const { result, unmount } = renderHook(() =>
+  useEventSubscription({ target: window, event: 'keydown', handler: vi.fn() }),
+)
+act(() => window.dispatchEvent(new KeyboardEvent('keydown')))
+unmount()
+// handler no longer called after unmount
 ```
 
 Required edge cases per hook:
@@ -564,10 +565,11 @@ jobs:
 
 ### Phase 3 — Hooks Library (TDD)
 
-1. `use-on-mount`, `use-derived-state`
-2. `use-fetch`
-3. `use-event-subscription`, `use-external-sync`
-4. `use-analytics`, `use-external-widget`
+1. `useOnMount`
+2. `useEventSubscription`
+3. `useDebounce`
+4. `useInterval`
+5. `useTimeout`
 
 ### Phase 4 — Agent Skills
 
