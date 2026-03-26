@@ -4,7 +4,7 @@ An npm monorepo providing an ESLint plugin, a hooks library, and an AI agent ski
 
 ## Motivation
 
-`useEffect` is the most misused hook in React. The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where it is unnecessary — yet developers (and AI coding agents) reach for it by default.
+`useEffect` is the most misused hook in React. The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where it is unnecessary, yet developers (and AI coding agents) reach for it by default.
 
 The consequences are real bugs in production:
 
@@ -64,7 +64,7 @@ function UserList({ search }) {
 }
 ```
 
-The pattern is widespread enough that teams have started banning `useEffect` outright — see [this thread from Factory](https://x.com/alvinsng/status/2033969062834045089).
+The pattern is widespread enough that teams have started banning `useEffect` outright. See [this thread from Factory](https://x.com/alvinsng/status/2033969062834045089).
 
 <details>
 <summary>Hook replacements for every legitimate useEffect use case</summary>
@@ -85,11 +85,11 @@ The pattern is widespread enough that teams have started banning `useEffect` out
 <details>
 <summary>ESLint rules and the warnings they produce</summary>
 
-All rules are `"warn"` in the recommended config. No autofixes — suggestions only.
+All rules are `"warn"` in the recommended config. No autofixes; suggestions only.
 
 ---
 
-**`no-derived-state`** — `useEffect` setting state from a pure calculation of its deps
+**`no-derived-state`**: `useEffect` setting state from a pure calculation of its deps
 
 ```tsx
 // ⚠ react-effectless/no-derived-state
@@ -105,7 +105,7 @@ const fullName = firstName + ' ' + lastName
 
 ---
 
-**`no-effect-memo`** — `useEffect` + `setState` with `.filter()` / `.map()` / `.reduce()` etc.
+**`no-effect-memo`**: `useEffect` + `setState` with `.filter()` / `.map()` / `.reduce()` etc.
 
 ```tsx
 // ⚠ react-effectless/no-effect-memo
@@ -121,7 +121,7 @@ const active = useMemo(() => items.filter((x) => x.active), [items])
 
 ---
 
-**`no-effect-event-handler`** — `useEffect` fires only because state was set inside an event handler
+**`no-effect-event-handler`**: `useEffect` fires only because state was set inside an event handler
 
 ```tsx
 // ⚠ react-effectless/no-effect-event-handler
@@ -141,7 +141,7 @@ function handleSubmit() {
 
 ---
 
-**`no-effect-reset-state`** — `useEffect` resets all local state when a prop changes
+**`no-effect-reset-state`**: `useEffect` resets all local state when a prop changes
 
 ```tsx
 // ⚠ react-effectless/no-effect-reset-state
@@ -159,7 +159,7 @@ useEffect(() => {
 
 ---
 
-**`no-effect-adjust-state`** — `useEffect` partially adjusts state when a prop changes
+**`no-effect-adjust-state`**: `useEffect` partially adjusts state when a prop changes
 
 ```tsx
 // ⚠ react-effectless/no-effect-adjust-state
@@ -175,7 +175,7 @@ const selection = items.length === 0 ? null : selection
 
 ---
 
-**`no-effect-post-action`** — `useEffect` sends a request triggered by a state flag
+**`no-effect-post-action`**: `useEffect` sends a request triggered by a state flag
 
 ```tsx
 // ⚠ react-effectless/no-effect-post-action
@@ -195,7 +195,7 @@ function handleSave() {
 
 ---
 
-**`no-effect-chain`** — multiple effects where one's `setState` is another's dep
+**`no-effect-chain`**: multiple effects where one's `setState` is another's dep
 
 ```tsx
 // ⚠ react-effectless/no-effect-chain
@@ -218,7 +218,7 @@ function handleChange(raw) {
 
 ---
 
-**`no-effect-notify-parent`** — `useEffect` calls a parent callback after `setState`
+**`no-effect-notify-parent`**: `useEffect` calls a parent callback after `setState`
 
 ```tsx
 // ⚠ react-effectless/no-effect-notify-parent
@@ -237,7 +237,7 @@ function handleChange(next) {
 
 ---
 
-**`no-effect-pass-data-parent`** — child `useEffect` passes fetched data up via a parent setter
+**`no-effect-pass-data-parent`**: child `useEffect` passes fetched data up via a parent setter
 
 ```tsx
 // ⚠ react-effectless/no-effect-pass-data-parent
@@ -256,7 +256,7 @@ function Child({ onData }) {
 
 ---
 
-**`no-effect-app-init`** — `useEffect(fn, [])` for one-time app-level initialization
+**`no-effect-app-init`**: `useEffect(fn, [])` for one-time app-level initialization
 
 ```tsx
 // ⚠ react-effectless/no-effect-app-init
@@ -274,18 +274,18 @@ featureFlags.load()
 
 ---
 
-| Rule                         | Short warning                                                                     |
-| ---------------------------- | --------------------------------------------------------------------------------- |
-| `no-derived-state`           | Derive during render instead of syncing with useEffect                            |
-| `no-effect-memo`             | Use `useMemo` instead of useEffect + setState with array methods                  |
-| `no-effect-event-handler`    | Move logic into the event handler — the effect fires only because of a state flag |
-| `no-effect-reset-state`      | Use a `key` prop in the parent instead of resetting state in an effect            |
-| `no-effect-adjust-state`     | Derive the value during render instead of adjusting state in an effect            |
-| `no-effect-post-action`      | Move the API call into the event handler — the effect is reacting to a flag       |
-| `no-effect-chain`            | Consolidate the effect chain into a single event handler                          |
-| `no-effect-notify-parent`    | Call the parent callback alongside setState in the handler                        |
-| `no-effect-pass-data-parent` | Lift data fetching to the parent                                                  |
-| `no-effect-app-init`         | Use module-level code or a `didInit` guard for one-time initialization            |
+| Rule                         | Short warning                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| `no-derived-state`           | Derive during render instead of syncing with useEffect                           |
+| `no-effect-memo`             | Use `useMemo` instead of useEffect + setState with array methods                 |
+| `no-effect-event-handler`    | Move logic into the event handler: the effect fires only because of a state flag |
+| `no-effect-reset-state`      | Use a `key` prop in the parent instead of resetting state in an effect           |
+| `no-effect-adjust-state`     | Derive the value during render instead of adjusting state in an effect           |
+| `no-effect-post-action`      | Move the API call into the event handler: the effect is reacting to a flag       |
+| `no-effect-chain`            | Consolidate the effect chain into a single event handler                         |
+| `no-effect-notify-parent`    | Call the parent callback alongside setState in the handler                       |
+| `no-effect-pass-data-parent` | Lift data fetching to the parent                                                 |
+| `no-effect-app-init`         | Use module-level code or a `didInit` guard for one-time initialization           |
 
 </details>
 
@@ -293,7 +293,7 @@ featureFlags.load()
 
 `useEffect` is the right tool for genuine side effects: syncing with external systems, setting up subscriptions, integrating third-party DOM libraries. That use case is real and valid.
 
-The goal is to stop reaching for it _instead of_ simpler patterns — derived state, event handlers, `useMemo` — where it introduces unnecessary complexity and bugs. When you do need an effect, the hooks in this library (`useOnMount`, `useEventSubscription`, `useDebounce`, `useInterval`, `useTimeout`) wrap the genuinely legitimate cases so the common footguns (stale closures, missing cleanup, listeners re-added every render) are handled for you.
+The goal is to stop reaching for it _instead of_ simpler patterns (derived state, event handlers, `useMemo`) where it introduces unnecessary complexity and bugs. When you do need an effect, the hooks in this library (`useOnMount`, `useEventSubscription`, `useDebounce`, `useInterval`, `useTimeout`) wrap the genuinely legitimate cases so the common footguns (stale closures, missing cleanup, listeners re-added every render) are handled for you.
 
 `react-effectless` makes the right patterns the path of least resistance.
 
@@ -392,12 +392,12 @@ Appends `react-effectless` usage rules to `CLAUDE.md`, `AGENTS.md`, `.cursor/rul
 
 The monorepo also ships `npx react-effectless init`, a CLI that writes agent instruction files (CLAUDE.md, Cursor rules, Copilot instructions) into consumer projects so AI agents stop generating the same anti-patterns.
 
-The goal is not to replace every `useEffect` with a custom hook — for data fetching, reach for [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview). The hooks in `react-effectless` only cover the patterns where rolling your own with `useEffect` reliably introduces bugs.
+The goal is not to replace every `useEffect` with a custom hook. For data fetching, reach for [TanStack Query](https://tanstack.com/query) or [RTK Query](https://redux-toolkit.js.org/rtk-query/overview). The hooks in `react-effectless` only cover the patterns where rolling your own with `useEffect` reliably introduces bugs.
 
 ## Hooks
 
 <details>
-<summary><code>useOnMount(cb)</code> — run once on mount</summary>
+<summary><code>useOnMount(cb)</code>: run once on mount</summary>
 
 ```tsx
 import { useOnMount } from 'react-effectless'
@@ -415,7 +415,7 @@ Replaces `useEffect(fn, [])`. Makes intent explicit and handles StrictMode-safe 
 </details>
 
 <details>
-<summary><code>useEventSubscription({ target, event, handler })</code> — DOM event listener</summary>
+<summary><code>useEventSubscription({ target, event, handler })</code>: DOM event listener</summary>
 
 ```tsx
 import { useEventSubscription } from 'react-effectless'
@@ -433,12 +433,12 @@ function KeyLogger() {
 }
 ```
 
-Without this hook, an inline handler reference changes every render — the listener is removed and re-added on every render. `useEventSubscription` stabilizes the handler ref internally.
+Without this hook, an inline handler reference changes every render; the listener is removed and re-added on every render. `useEventSubscription` stabilizes the handler ref internally.
 
 </details>
 
 <details>
-<summary><code>useDebounce({ value, delay })</code> — debounce a rapidly changing value</summary>
+<summary><code>useDebounce({ value, delay })</code>: debounce a rapidly changing value</summary>
 
 ```tsx
 import { useDebounce } from 'react-effectless'
@@ -458,7 +458,7 @@ Rolling your own with `useEffect` + `setTimeout` misses `clearTimeout` on rapid 
 </details>
 
 <details>
-<summary><code>useInterval({ callback, delay })</code> — repeating interval</summary>
+<summary><code>useInterval({ callback, delay })</code>: repeating interval</summary>
 
 ```tsx
 import { useInterval } from 'react-effectless'
@@ -480,7 +480,7 @@ The classic footgun from [Dan Abramov's post](https://overreacted.io/making-seti
 </details>
 
 <details>
-<summary><code>useTimeout({ callback, delay })</code> — one-shot delayed action</summary>
+<summary><code>useTimeout({ callback, delay })</code>: one-shot delayed action</summary>
 
 ```tsx
 import { useTimeout } from 'react-effectless'
@@ -504,18 +504,18 @@ npm install      # install all workspace dependencies
 
 ### Scripts
 
-| Command                 | Description                                                                 |
-| ----------------------- | --------------------------------------------------------------------------- |
-| `npm run check`         | Full quality gate — format, lint, typecheck, test (run before opening a PR) |
-| `npm test`              | Run the full test suite across all packages                                 |
-| `npm run test:watch`    | Watch mode                                                                  |
-| `npm run test:coverage` | Run tests with coverage report                                              |
-| `npm run build`         | Build all packages (ESLint plugin only — hooks publish source)              |
-| `npm run typecheck`     | Run `tsc --noEmit` across all packages                                      |
-| `npm run lint`          | Check all packages with ESLint                                              |
-| `npm run lint:fix`      | Auto-fix ESLint issues across all packages                                  |
-| `npm run format`        | Format all files with Prettier                                              |
-| `npm run format:check`  | Check formatting without writing (used in CI)                               |
+| Command                 | Description                                                                |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `npm run check`         | Full quality gate: format, lint, typecheck, test (run before opening a PR) |
+| `npm test`              | Run the full test suite across all packages                                |
+| `npm run test:watch`    | Watch mode                                                                 |
+| `npm run test:coverage` | Run tests with coverage report                                             |
+| `npm run build`         | Build all packages (ESLint plugin only; hooks publish source)              |
+| `npm run typecheck`     | Run `tsc --noEmit` across all packages                                     |
+| `npm run lint`          | Check all packages with ESLint                                             |
+| `npm run lint:fix`      | Auto-fix ESLint issues across all packages                                 |
+| `npm run format`        | Format all files with Prettier                                             |
+| `npm run format:check`  | Check formatting without writing (used in CI)                              |
 
 ## License
 
