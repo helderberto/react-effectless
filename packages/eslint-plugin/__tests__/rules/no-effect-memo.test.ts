@@ -216,6 +216,40 @@ describe('no-effect-memo', () => {
           },
         ],
       },
+      // expression body arrow function callback
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ items }) {
+            const [active, setActive] = useState([])
+            useEffect(() => setActive(items.filter(x => x.active)), [items])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'Avoid using useEffect to compute derived array values. Use useMemo(() => compute(), [deps]) instead.',
+          },
+        ],
+      },
+      // array expression containing array transform
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ items }) {
+            const [result, setResult] = useState([])
+            useEffect(() => {
+              setResult([items.filter(x => x.active)])
+            }, [items])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'Avoid using useEffect to compute derived array values. Use useMemo(() => compute(), [deps]) instead.',
+          },
+        ],
+      },
     ],
   })
 })

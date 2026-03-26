@@ -79,6 +79,20 @@ describe('no-effect-notify-parent', () => {
           }
         `,
       },
+      // setter + parent callback + external member expression call — has side effect, skip
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ value, onChange }) {
+            const [local, setLocal] = useState(value)
+            useEffect(() => {
+              setLocal(value)
+              onChange(value)
+              analytics.track(value)
+            }, [value, onChange])
+          }
+        `,
+      },
     ],
     invalid: [
       // setState then parent callback prop

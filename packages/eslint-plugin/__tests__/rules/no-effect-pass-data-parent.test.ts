@@ -154,6 +154,25 @@ describe('no-effect-pass-data-parent', () => {
           },
         ],
       },
+      // multi-step .then chain — recursive hasThenWithOnCallback path
+      {
+        code: `
+          import { useEffect } from 'react'
+          function Child({ onData }) {
+            useEffect(() => {
+              fetch('/api/data')
+                .then(r => r.json())
+                .then(onData)
+            }, [onData])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'A child component is fetching data and passing it to the parent via a callback prop. Lift the data fetching to the parent instead.',
+          },
+        ],
+      },
     ],
   })
 })

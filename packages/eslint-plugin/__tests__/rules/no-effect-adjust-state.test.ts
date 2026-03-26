@@ -75,6 +75,17 @@ describe('no-effect-adjust-state', () => {
           }
         `,
       },
+      // member expression call with ternary arg — isSetterWithConditionalArg returns false for non-Identifier callee
+      {
+        code: `
+          import { useEffect } from 'react'
+          function Component({ isAdmin, userId }) {
+            useEffect(() => {
+              obj.set(isAdmin ? userId : null)
+            }, [isAdmin, userId])
+          }
+        `,
+      },
     ],
     invalid: [
       // if + setState — partial state adjustment

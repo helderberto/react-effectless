@@ -209,6 +209,40 @@ describe('no-derived-state', () => {
           },
         ],
       },
+      // template literal derivation
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ firstName, lastName }) {
+            const [greeting, setGreeting] = useState('')
+            useEffect(() => {
+              setGreeting(\`Hello \${firstName} \${lastName}\`)
+            }, [firstName, lastName])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
+      },
+      // expression body arrow function callback
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ a, b }) {
+            const [sum, setSum] = useState(0)
+            useEffect(() => setSum(a + b), [a, b])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
+      },
     ],
   })
 })

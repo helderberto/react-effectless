@@ -85,6 +85,51 @@ describe('no-effect-event-handler', () => {
           }
         `,
       },
+      // handler calls member expression only — extractSetterTargets skips non-Identifier callee
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component() {
+            const [count, setCount] = useState(0)
+            function handleSave() {
+              api.save()
+            }
+            useEffect(() => {
+              analytics.track(count)
+            }, [count])
+          }
+        `,
+      },
+      // handler calls non-setter identifier — no target extracted, dep not in handlerVars
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component() {
+            const [value, setValue] = useState('')
+            function handleClick() {
+              go()
+            }
+            useEffect(() => {
+              analytics.track(value)
+            }, [value])
+          }
+        `,
+      },
+      // effect body has CallExpression callee — isUnconditionalExternalCallStmt returns false
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component() {
+            const [value, setValue] = useState('')
+            function handleChange(v) {
+              setValue(v)
+            }
+            useEffect(() => {
+              getTracker()(value)
+            }, [value])
+          }
+        `,
+      },
     ],
     invalid: [
       // handleClick sets count, effect runs analytics.track unconditionally

@@ -77,6 +77,31 @@ describe('no-effect-post-action', () => {
           }
         `,
       },
+      // if consequent is an assignment, not a call — isExternalCall returns false
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component() {
+            const [submitted, setSubmitted] = useState(false)
+            let result
+            useEffect(() => {
+              if (submitted) result = submitted
+            }, [submitted])
+          }
+        `,
+      },
+      // if consequent has higher-order call (callee is CallExpression) — not flagged
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component() {
+            const [done, setDone] = useState(false)
+            useEffect(() => {
+              if (done) getHandler()()
+            }, [done])
+          }
+        `,
+      },
     ],
     invalid: [
       // boolean flag triggers API call in effect

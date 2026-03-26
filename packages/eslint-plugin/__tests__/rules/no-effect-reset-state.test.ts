@@ -204,6 +204,26 @@ describe('no-effect-reset-state', () => {
           },
         ],
       },
+      // reset with undefined identifier
+      {
+        code: `
+          import { useEffect, useState } from 'react'
+          function Component({ userId }) {
+            const [page, setPage] = useState(0)
+            const [selection, setSelection] = useState(null)
+            useEffect(() => {
+              setPage(0)
+              setSelection(undefined)
+            }, [userId])
+          }
+        `,
+        errors: [
+          {
+            message:
+              'Avoid resetting all state in a useEffect when a prop changes. Pass a key prop to the component from the parent instead.',
+          },
+        ],
+      },
     ],
   })
 })
