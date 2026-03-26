@@ -2,14 +2,6 @@ import { renderHook, act } from '@testing-library/react'
 import { useDebounce } from '@/use-debounce'
 
 describe('useDebounce', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   it('returns initial value immediately', () => {
     const { result } = renderHook(() => useDebounce({ value: 'hello', delay: 300 }))
     expect(result.current).toBe('hello')

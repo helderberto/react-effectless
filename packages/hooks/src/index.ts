@@ -1,3 +1,5 @@
 export { useOnMount } from './use-on-mount'
 export { useEventSubscription } from './use-event-subscription'
 export { useDebounce } from './use-debounce'
+export { useInterval } from './use-interval'
+export { useTimeout } from './use-timeout'

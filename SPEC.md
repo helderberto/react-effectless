@@ -614,8 +614,7 @@ jobs:
 - `peerDependencies: { react: ">=16.8.0" }`
 - No `: void` return annotation — implicit from TypeScript
 - No comments in source — code must be self-documenting
-- `__tests__/setup.ts` runs before each test: `cleanup()`, `vi.clearAllMocks()`, `vi.restoreAllMocks()`
-- Fake timers: `vi.useFakeTimers()` in `beforeEach`, `vi.useRealTimers()` in `afterEach` — only in tests that need them
+- `__tests__/setup.ts` runs before every test: `vi.useFakeTimers()` on enter, `cleanup()` + `vi.clearAllMocks()` + `vi.restoreAllMocks()` + `vi.useRealTimers()` on exit — no per-test timer setup needed
 
 #### Standard test cases per hook
 
@@ -627,8 +626,8 @@ jobs:
 1. ✓ `useOnMount` — `useEffect(cb, [])` with explicit intent; 4 tests
 2. ✓ `useEventSubscription` — stable handler via ref, no re-subscribe on handler change; 6 tests
 3. ✓ `useDebounce` — setTimeout + clearTimeout on each value change; 5 tests
-4. `useInterval`
-5. `useTimeout`
+4. ✓ `useInterval` — stable callback ref, null pauses; 6 tests
+5. ✓ `useTimeout` — stable callback ref, null disables, delay change resets; 6 tests
 
 ### Phase 4 — Agent Skills
 
