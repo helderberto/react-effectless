@@ -12,11 +12,9 @@
 
 </div>
 
-`useEffect` is the most misused hook in React. Developers (and AI coding agents) reach for it by default — even when derived state, event handlers, or `useMemo` would be simpler and safer. The result is real bugs: infinite loops, stale closures, and race conditions. `react-effectless` makes the right patterns the path of least resistance.
-
 ## Motivation
 
-The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where `useEffect` is unnecessary. The consequences are real bugs in production:
+`useEffect` is the most misused hook in React. The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where it's unnecessary, yet developers (and AI agents) reach for it by default. The result is real bugs in production:
 
 <details>
 <summary>Infinite loop — derived state set in an effect</summary>
@@ -89,7 +87,7 @@ function UserList({ search }) {
 
 </details>
 
-The pattern is widespread enough that teams have started banning `useEffect` outright. See [this thread from Factory](https://x.com/alvinsng/status/2033969062834045089).
+`react-effectless` makes the right patterns the path of least resistance.
 
 ## Installation
 
