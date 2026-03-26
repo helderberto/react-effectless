@@ -429,12 +429,11 @@ export default {
 }
 ```
 
-**pre-push** — runs the full quality gate before any push reaches the remote:
+**pre-push** — typechecks before any push reaches the remote. Tests run in CI to allow pushing red commits during TDD:
 
 ```sh
 # .husky/pre-push
 npm run typecheck
-npm test
 ```
 
 Setup added to root `package.json` `prepare` script so hooks install automatically on `npm install`:
