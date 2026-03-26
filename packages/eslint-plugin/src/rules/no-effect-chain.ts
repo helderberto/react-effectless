@@ -68,7 +68,10 @@ const rule: Rule.RuleModule = {
         }
         const deps = parseDepsArray(node) ?? []
         const setterTargets = extractSetterTargets(node)
-        componentStack[componentStack.length - 1].push({ node, deps, setterTargets })
+        const top = componentStack[componentStack.length - 1]
+        if (top) {
+          top.push({ node, deps, setterTargets })
+        }
       },
     }
   },
@@ -131,7 +134,10 @@ function extractSetterTargets(effectNode: Rule.Node): string[] {
     if (!name.startsWith('set') || name.length <= 3) {
       continue
     }
-    targets.push(name[3].toLowerCase() + name.slice(4))
+    const fourth = name[3]
+    if (fourth !== undefined) {
+      targets.push(fourth.toLowerCase() + name.slice(4))
+    }
   }
   return targets
 }
