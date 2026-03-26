@@ -1,8 +1,19 @@
 # react-effectless
 
-[![CI](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg)](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/dm/react-effectless)](https://www.npmjs.com/package/react-effectless)
-[![Coverage](https://img.shields.io/codecov/c/github/helderberto/react-effectless)](https://codecov.io/gh/helderberto/react-effectless)
+<div align="center">
+
+[![Build Status][build-badge]][build]
+[![Downloads][downloads-badge]][npmtrends]
+[![MIT License][license-badge]][license]
+
+</div>
+
+[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg?style=flat-square
+[build]: https://github.com/helderberto/react-effectless/actions
+[downloads-badge]: https://img.shields.io/npm/dm/react-effectless.svg?style=flat-square
+[npmtrends]: http://www.npmtrends.com/react-effectless
+[license-badge]: https://img.shields.io/npm/l/react-effectless.svg?style=flat-square
+[license]: https://github.com/helderberto/react-effectless/blob/main/LICENSE
 
 An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
 
