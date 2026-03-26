@@ -2,6 +2,9 @@
   "name": "react-effectless",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
