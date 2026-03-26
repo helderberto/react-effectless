@@ -3,6 +3,15 @@ import type { Node, Expression } from 'estree'
 import { isUseEffectCall, isComponentFunction } from '@/utils/ast'
 import { resolveHookName } from '@/utils/scope'
 import { getStateSetters } from '@/utils/dependency'
+import type {
+  NodeWithParent,
+  NodeWithArgs,
+  NodeWithBody,
+  NodeWithStatements,
+  NodeWithExpression,
+  NodeWithCallee,
+  NodeWithName,
+} from '@/types'
 
 const ARRAY_TRANSFORM_METHODS = new Set([
   'filter',
@@ -53,7 +62,7 @@ const rule: Rule.RuleModule = {
 }
 
 function getEnclosingFunction(node: Rule.Node): Rule.Node | null {
-  let current: Rule.Node | null = (node as Rule.Node & { parent?: Rule.Node }).parent ?? null
+  let current: Rule.Node | null = (node as NodeWithParent).parent ?? null
   while (current) {
     if (
       current.type === 'FunctionDeclaration' ||
@@ -62,7 +71,7 @@ function getEnclosingFunction(node: Rule.Node): Rule.Node | null {
     ) {
       return current
     }
-    current = (current as Rule.Node & { parent?: Rule.Node }).parent ?? null
+    current = (current as NodeWithParent).parent ?? null
   }
   return null
 }
@@ -70,25 +79,24 @@ function getEnclosingFunction(node: Rule.Node): Rule.Node | null {
 function isArrayTransformDerivation(node: Rule.Node): boolean {
   if (node.type !== 'CallExpression') return false
 
-  const callNode = node as Rule.Node & { arguments: Rule.Node[] }
-  const callback = callNode.arguments[0]
+  const callback = (node as NodeWithArgs).arguments[0]
   if (!callback) return false
   if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression')
     return false
 
-  const body = (callback as Rule.Node & { body: Rule.Node }).body
+  const body = (callback as NodeWithBody).body
   if (!body) return false
 
   const stmts: Rule.Node[] =
     body.type === 'BlockStatement'
-      ? (body as Rule.Node & { body: Rule.Node[] }).body
+      ? (body as NodeWithStatements).body
       : [{ type: 'ExpressionStatement', expression: body } as unknown as Rule.Node]
 
   if (stmts.length === 0) return false
 
   return stmts.every((stmt) => {
     if (stmt.type !== 'ExpressionStatement') return false
-    const expr = (stmt as Rule.Node & { expression: Rule.Node }).expression
+    const expr = (stmt as NodeWithExpression).expression
     return isSetterWithArrayTransform(expr)
   })
 }
@@ -96,9 +104,9 @@ function isArrayTransformDerivation(node: Rule.Node): boolean {
 function isSetterWithArrayTransform(expr: Rule.Node): boolean {
   if (expr.type !== 'CallExpression') return false
 
-  const call = expr as Rule.Node & { callee: Rule.Node; arguments: Rule.Node[] }
+  const call = expr as NodeWithCallee
   if (call.callee.type !== 'Identifier') return false
-  if (!(call.callee as Rule.Node & { name: string }).name.startsWith('set')) return false
+  if (!(call.callee as NodeWithName).name.startsWith('set')) return false
 
   return call.arguments.some((arg) => containsArrayTransform(arg as Node))
 }

@@ -2,6 +2,7 @@ import type { Rule } from 'eslint'
 import type { Node, Statement, ReturnStatement } from 'estree'
 import { isUseEffectCall, isComponentFunction } from '@/utils/ast'
 import { resolveHookName } from '@/utils/scope'
+import type { NodeWithParent, NodeWithArgs, ArrayExprNode } from '@/types'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -16,28 +17,51 @@ const rule: Rule.RuleModule = {
     return {
       CallExpression(node) {
         const hookName = resolveHookName(node, context)
-        if (hookName !== 'useEffect' && !isUseEffectCall(node)) return
+        if (hookName !== 'useEffect' && !isUseEffectCall(node)) {
+          return
+        }
 
         const enclosingFn = getEnclosingFunction(node)
-        if (!enclosingFn) return
-        if (!isComponentFunction(enclosingFn)) return
+        if (!enclosingFn) {
+          return
+        }
+        if (!isComponentFunction(enclosingFn)) {
+          return
+        }
 
-        if (!hasEmptyDeps(node)) return
+        if (!hasEmptyDeps(node)) {
+          return
+        }
 
         const callback = node.arguments[0]
-        if (!callback) return
-        if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression')
+        if (!callback) {
           return
+        }
+        if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
+          return
+        }
 
         const body = callback.body
-        if (!body || body.type !== 'BlockStatement') return
+        if (!body || body.type !== 'BlockStatement') {
+          return
+        }
 
         const stmts = body.body
-        if (stmts.length === 0) return
-        if (hasReturnStatement(stmts)) return
-        if (hasStateSetterCall(stmts)) return
-        if (hasRefCurrentAccess(stmts)) return
-        if (!hasAnyCallExpression(stmts)) return
+        if (stmts.length === 0) {
+          return
+        }
+        if (hasReturnStatement(stmts)) {
+          return
+        }
+        if (hasStateSetterCall(stmts)) {
+          return
+        }
+        if (hasRefCurrentAccess(stmts)) {
+          return
+        }
+        if (!hasAnyCallExpression(stmts)) {
+          return
+        }
 
         context.report({ node, messageId: 'noEffectAppInit' })
       },
@@ -46,7 +70,7 @@ const rule: Rule.RuleModule = {
 }
 
 function getEnclosingFunction(node: Rule.Node): Rule.Node | null {
-  let current: Rule.Node | null = (node as Rule.Node & { parent?: Rule.Node }).parent ?? null
+  let current: Rule.Node | null = (node as NodeWithParent).parent ?? null
   while (current) {
     if (
       current.type === 'FunctionDeclaration' ||
@@ -55,16 +79,20 @@ function getEnclosingFunction(node: Rule.Node): Rule.Node | null {
     ) {
       return current
     }
-    current = (current as Rule.Node & { parent?: Rule.Node }).parent ?? null
+    current = (current as NodeWithParent).parent ?? null
   }
   return null
 }
 
 function hasEmptyDeps(node: Rule.Node): boolean {
-  if (node.type !== 'CallExpression') return false
-  const depsArg = (node as Rule.Node & { arguments: Node[] }).arguments[1]
-  if (!depsArg || depsArg.type !== 'ArrayExpression') return false
-  return (depsArg as Rule.Node & { elements: Node[] }).elements.length === 0
+  if (node.type !== 'CallExpression') {
+    return false
+  }
+  const depsArg = (node as NodeWithArgs).arguments[1]
+  if (!depsArg || depsArg.type !== 'ArrayExpression') {
+    return false
+  }
+  return (depsArg as unknown as ArrayExprNode).elements.length === 0
 }
 
 function hasReturnStatement(stmts: Statement[]): boolean {
@@ -113,7 +141,9 @@ function hasAnyCallExpression(stmts: Statement[]): boolean {
 }
 
 function containsCallExpression(node: Node): boolean {
-  if (node.type === 'CallExpression') return true
+  if (node.type === 'CallExpression') {
+    return true
+  }
   return childNodes(node).some(containsCallExpression)
 }
 
@@ -122,14 +152,17 @@ const SKIP_KEYS = new Set(['parent', 'range', 'loc'])
 function childNodes(node: Node): Node[] {
   const children: Node[] = []
   for (const key of Object.keys(node)) {
-    if (SKIP_KEYS.has(key)) continue
-    const val = (node as unknown as Record<string, unknown>)[key]
-    if (Array.isArray(val)) {
-      for (const item of val) {
-        if (item && typeof item === 'object' && 'type' in item) children.push(item as Node)
+    if (!SKIP_KEYS.has(key)) {
+      const val = (node as unknown as Record<string, unknown>)[key]
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          if (item && typeof item === 'object' && 'type' in item) {
+            children.push(item as Node)
+          }
+        }
+      } else if (val && typeof val === 'object' && 'type' in val) {
+        children.push(val as Node)
       }
-    } else if (val && typeof val === 'object' && 'type' in val) {
-      children.push(val as Node)
     }
   }
   return children
