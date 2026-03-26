@@ -606,11 +606,14 @@ jobs:
 
 - Hook files: `packages/hooks/src/use-<name>.ts` (kebab-case)
 - Tests: `packages/hooks/__tests__/use-<name>.test.ts`
+- Shared types: `packages/hooks/src/types/index.ts` — all hook option/callback types live here
 - Exports: re-export all hooks from `src/index.ts`
 - Test environment: `jsdom` (configured in `vitest.config.ts`); `globals: true` — do not import from `'vitest'`
 - Test utility: `renderHook` from `@testing-library/react` for all hook tests
 - No build step — package exports TypeScript source directly via `"exports": { ".": "./src/index.ts" }`
 - `peerDependencies: { react: ">=16.8.0" }`
+- No `: void` return annotation — implicit from TypeScript
+- No comments in source — code must be self-documenting
 
 #### Standard test cases per hook
 
@@ -620,7 +623,7 @@ jobs:
 - Edge cases specific to the hook (optional `delay: null`, etc.)
 
 1. ✓ `useOnMount` — `useEffect(cb, [])` with explicit intent; 4 tests
-2. `useEventSubscription`
+2. ✓ `useEventSubscription` — stable handler via ref, no re-subscribe on handler change; 6 tests
 3. `useDebounce`
 4. `useInterval`
 5. `useTimeout`
