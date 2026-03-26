@@ -243,28 +243,31 @@ Required edge cases per rule:
 - Nested component inside component
 - Custom hook that internally calls `useEffect` (must not be flagged)
 
-Rule tests use `Rule.RuleModule` for full type inference — no `any`, no `unknown` in test rule definitions:
+Rule tests use the shared tester from `__tests__/rule-tester.ts` — no per-file boilerplate:
 
 ```ts
-import { RuleTester } from 'eslint'
-import type { Rule } from 'eslint'
 import rule from '@/rules/no-derived-state'
+import { tester } from '../rule-tester'
 
-const tester = new RuleTester({
-  languageOptions: {
-    parserOptions: { ecmaVersion: 2022, sourceType: 'module', ecmaFeatures: { jsx: true } },
-  },
-})
-
-tester.run('no-derived-state', rule, {
-  valid: [
-    /* legitimate useEffect usages */
-  ],
-  invalid: [
-    /* anti-patterns with expected messageId */
-  ],
+describe('no-derived-state', () => {
+  tester.run('no-derived-state', rule, {
+    valid: [
+      /* legitimate useEffect usages */
+    ],
+    invalid: [
+      /* anti-patterns — use message (full string), not messageId */
+      {
+        code: `...`,
+        errors: [{ message: 'Exact warning text here.' }],
+      },
+    ],
+  })
 })
 ```
+
+**`message` not `messageId` in errors** — the full warning string makes expected output readable inline without cross-referencing the rule source. `RuleTester` does not allow both simultaneously; use `message` only.
+
+**`tester.run()` inside `describe()`**, never inside `it()` — putting it inside `it()` silences inner assertions.
 
 Utility function tests drive behavior via `context.report()` + `messageId` — stubs that return wrong values cause the test to fail, confirming the red phase:
 
@@ -315,6 +318,40 @@ All packages set `globals: true` in `vitest.config.ts`. Do not import `describe`
 ## TypeScript
 
 No `any`. Use specific types where possible; fall back to `unknown` when the type cannot be determined. For ESLint rule authors, type rule objects as `Rule.RuleModule` to get full inference on `context` and node visitor parameters.
+
+### Shared AST types (`packages/eslint-plugin/src/types/index.ts`)
+
+All named AST intersection types live here. Import from `@/types`. Two groups:
+
+**`Rule.Node` extensions** — for ESLint rule visitor context:
+
+| Type                    | Intersection                                                |
+| ----------------------- | ----------------------------------------------------------- |
+| `NodeWithParent`        | `Rule.Node & { parent?: Rule.Node }`                        |
+| `NodeWithArgs`          | `Rule.Node & { arguments: Rule.Node[] }`                    |
+| `NodeWithBody`          | `Rule.Node & { body: Rule.Node }`                           |
+| `NodeWithStatements`    | `Rule.Node & { body: Rule.Node[] }`                         |
+| `NodeWithExpression`    | `Rule.Node & { expression: Rule.Node }`                     |
+| `NodeWithCallee`        | `Rule.Node & { callee: Rule.Node; arguments: Rule.Node[] }` |
+| `NodeWithName`          | `Rule.Node & { name: string }`                              |
+| `NodeWithOperands`      | `Rule.Node & { left: Rule.Node; right: Rule.Node }`         |
+| `NodeWithTemplateExprs` | `Rule.Node & { expressions: Rule.Node[] }`                  |
+
+**`estree Node` narrowings** — for helper traversal functions:
+
+| Type               | Intersection                                 |
+| ------------------ | -------------------------------------------- |
+| `CallNode`         | `Node & { callee: Node }`                    |
+| `CallWithArgsNode` | `Node & { callee: Node; arguments: Node[] }` |
+| `MemberNode`       | `Node & { object: Node; property: Node }`    |
+| `IdentifierNode`   | `Node & { name: string }`                    |
+| `ReturnNode`       | `Node & { argument: unknown }`               |
+| `ExprStmtNode`     | `Node & { expression: Node }`                |
+| `LiteralNode`      | `Node & { value: unknown }`                  |
+| `ArrayExprNode`    | `Node & { elements: unknown[] }`             |
+| `ObjectExprNode`   | `Node & { properties: unknown[] }`           |
+
+When types become complex, add them here rather than inlining casts in rule files.
 
 ## Code style
 
@@ -555,10 +592,10 @@ jobs:
 
 1. ✓ AST utilities (`ast.ts`, `scope.ts`, `dependency.ts`) — tests written first
 2. ✓ `no-derived-state` — reference implementation establishing rule pattern
-3. `no-effect-memo`
-4. `no-effect-app-init`
-5. `no-effect-reset-state`, `no-effect-adjust-state`
-6. `no-effect-notify-parent`, `no-effect-post-action`
+3. ✓ `no-effect-memo` — setState with array transform methods → useMemo
+4. ✓ `no-effect-app-init` — useEffect(fn, []) for init → module-level code
+5. ✓ `no-effect-reset-state`, `no-effect-adjust-state`
+6. `no-effect-notify-parent`, `no-effect-post-action` ← NEXT
 7. `no-effect-chain` (hardest — requires dep graph across effects)
 8. `no-effect-event-handler`, `no-effect-pass-data-parent` (most heuristic)
 9. Plugin entry with flat + legacy configs
