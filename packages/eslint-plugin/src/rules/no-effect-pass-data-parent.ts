@@ -1,5 +1,5 @@
 import type { Rule } from 'eslint'
-import type { Statement } from 'estree'
+import type { Node, Statement } from 'estree'
 import { isUseEffectCall, isComponentFunction } from '@/utils/ast'
 import { resolveHookName } from '@/utils/scope'
 import type {
@@ -80,7 +80,7 @@ function hasStateSetterCall(stmts: Statement[]): boolean {
   })
 }
 
-function containsSetterCall(node: { type: string; [key: string]: unknown }): boolean {
+function containsSetterCall(node: Node): boolean {
   if (node.type === 'CallExpression') {
     const call = node as unknown as CallNode
     if (call.callee.type === 'Identifier') {
@@ -103,27 +103,27 @@ function hasDirectThenParentCallback(stmts: Statement[]): boolean {
   })
 }
 
-function hasThenWithOnCallback(node: { type: string; [key: string]: unknown }): boolean {
+function hasThenWithOnCallback(node: Node): boolean {
   if (node.type !== 'CallExpression') {
     return false
   }
   const call = node as unknown as CallWithArgs
-  const callee = call.callee
+  const callee = call.callee as Node
   if (callee.type !== 'MemberExpression') {
     return false
   }
   const member = callee as unknown as MemberNode
-  const property = member.property as { type: string; name?: string }
+  const property = member.property as Node & { name?: string }
   if (property.type === 'Identifier' && property.name === 'then') {
-    const firstArg = call.arguments[0]
+    const firstArg = call.arguments[0] as Node | undefined
     if (firstArg && isOnCallbackIdentifier(firstArg)) {
       return true
     }
   }
-  return hasThenWithOnCallback(member.object as { type: string; [key: string]: unknown })
+  return hasThenWithOnCallback(member.object as Node)
 }
 
-function isOnCallbackIdentifier(node: { type: string; [key: string]: unknown }): boolean {
+function isOnCallbackIdentifier(node: Node): boolean {
   if (node.type !== 'Identifier') {
     return false
   }
@@ -132,8 +132,8 @@ function isOnCallbackIdentifier(node: { type: string; [key: string]: unknown }):
 }
 
 interface CallWithArgs {
-  callee: { type: string; [key: string]: unknown }
-  arguments: Array<{ type: string; [key: string]: unknown }>
+  callee: Node
+  arguments: Node[]
 }
 
 export default rule
