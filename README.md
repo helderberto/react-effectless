@@ -297,6 +297,92 @@ The goal is to stop reaching for it _instead of_ simpler patterns — derived st
 
 `react-effectless` makes the right patterns the path of least resistance.
 
+## Quick start
+
+**1. Install**
+
+```sh
+npm install react-effectless
+npm install -D eslint-plugin-react-effectless
+```
+
+**2. Configure ESLint**
+
+ESLint 9+ (flat config):
+
+```ts
+// eslint.config.ts
+import reactEffectless from 'eslint-plugin-react-effectless'
+export default [reactEffectless.configs['flat/recommended']]
+```
+
+ESLint 8 (legacy `.eslintrc`):
+
+```json
+{
+  "plugins": ["react-effectless"],
+  "extends": ["plugin:react-effectless/recommended"]
+}
+```
+
+ESLint 8 (legacy `.eslintrc.js`):
+
+```js
+module.exports = {
+  plugins: ['react-effectless'],
+  extends: ['plugin:react-effectless/recommended'],
+}
+```
+
+To enable individual rules without the recommended preset:
+
+```ts
+// eslint.config.ts (ESLint 9+)
+import reactEffectless from 'eslint-plugin-react-effectless'
+export default [
+  {
+    plugins: { 'react-effectless': reactEffectless },
+    rules: {
+      'react-effectless/no-derived-state': 'warn',
+      'react-effectless/no-effect-memo': 'error',
+    },
+  },
+]
+```
+
+```json
+// .eslintrc (ESLint 8)
+{
+  "plugins": ["react-effectless"],
+  "rules": {
+    "react-effectless/no-derived-state": "warn",
+    "react-effectless/no-effect-memo": "error"
+  }
+}
+```
+
+**3. Use the hooks**
+
+```tsx
+import {
+  useOnMount,
+  useEventSubscription,
+  useDebounce,
+  useInterval,
+  useTimeout,
+} from 'react-effectless'
+```
+
+**4. (Optional) Bootstrap agent instructions**
+
+```sh
+npx react-effectless init
+```
+
+Appends `react-effectless` usage rules to `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/`, and `.github/copilot-instructions.md` so AI agents in your project stop generating `useEffect` anti-patterns.
+
+---
+
 ## Packages
 
 | Package                          | Description                                                                      |
