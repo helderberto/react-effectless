@@ -7,16 +7,19 @@
 <!-- prettier-ignore-end -->
 
   <p>
-    An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
+    An npm monorepo providing tools to eliminate unnecessary <code>useEffect</code> usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
   </p>
 
 </div>
 
+`useEffect` is the most misused hook in React. Developers (and AI coding agents) reach for it by default — even when derived state, event handlers, or `useMemo` would be simpler and safer. The result is real bugs: infinite loops, stale closures, and race conditions. `react-effectless` makes the right patterns the path of least resistance.
+
 ## Motivation
 
-`useEffect` is the most misused hook in React. The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where it is unnecessary, yet developers (and AI coding agents) reach for it by default.
+The [official React docs](https://react.dev/learn/you-might-not-need-an-effect) document 10 anti-patterns where `useEffect` is unnecessary. The consequences are real bugs in production:
 
-The consequences are real bugs in production:
+<details>
+<summary>Infinite loop — derived state set in an effect</summary>
 
 ```tsx
 // Bug: infinite loop — every render sets state, which triggers a render
@@ -33,6 +36,11 @@ function Profile({ userId }) {
   const user = transformUser(userId)
 }
 ```
+
+</details>
+
+<details>
+<summary>Stale closure — event listener captures initial state</summary>
 
 ```tsx
 // Bug: stale closure — handler captures the initial value of `count`
@@ -52,6 +60,11 @@ function Counter() {
   useEventSubscription({ target: window, event: 'keydown', handler: () => console.log(count) })
 }
 ```
+
+</details>
+
+<details>
+<summary>Race condition — concurrent fetch responses arrive out of order</summary>
 
 ```tsx
 // Bug: race condition — slow response from an earlier request overwrites a faster one
@@ -74,11 +87,54 @@ function UserList({ search }) {
 }
 ```
 
+</details>
+
 The pattern is widespread enough that teams have started banning `useEffect` outright. See [this thread from Factory](https://x.com/alvinsng/status/2033969062834045089).
 
-`useEffect` is the right tool for genuine side effects: syncing with external systems, setting up subscriptions, integrating third-party DOM libraries. The goal is to stop reaching for it _instead of_ simpler patterns (derived state, event handlers, `useMemo`) where it introduces unnecessary complexity and bugs.
+## Installation
 
-`react-effectless` makes the right patterns the path of least resistance.
+### Hooks library
+
+```sh
+npm install react-effectless
+```
+
+```tsx
+import {
+  useOnMount,
+  useEventSubscription,
+  useDebounce,
+  useInterval,
+  useTimeout,
+} from 'react-effectless'
+```
+
+Requires React 16.8+. See the [hooks README](./packages/hooks/README.md) for full API docs.
+
+### ESLint plugin
+
+```sh
+npm install -D eslint-plugin-react-effectless
+```
+
+ESLint 9+ (flat config):
+
+```ts
+// eslint.config.ts
+import reactEffectless from 'eslint-plugin-react-effectless'
+export default [reactEffectless.configs['flat/recommended']]
+```
+
+ESLint 8 (legacy `.eslintrc`):
+
+```json
+{
+  "plugins": ["react-effectless"],
+  "extends": ["plugin:react-effectless/recommended"]
+}
+```
+
+Requires ESLint 8+. See the [ESLint plugin README](./packages/eslint-plugin/README.md) for all 10 rules.
 
 ## Packages
 
