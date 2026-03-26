@@ -1,14 +1,14 @@
 <div align="center">
   <h1>🪝 react-effectless</h1>
 
-  <p>
-    An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
-  </p>
-
 <!-- prettier-ignore-start -->
 [![build][build-badge]][build]
 [![MIT License][license-badge]][license]
 <!-- prettier-ignore-end -->
+
+  <p>
+    An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
+  </p>
 
 </div>
 
