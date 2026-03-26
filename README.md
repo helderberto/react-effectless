@@ -85,20 +85,207 @@ The pattern is widespread enough that teams have started banning `useEffect` out
 <details>
 <summary>ESLint rules and the warnings they produce</summary>
 
-| Rule                         | Warning                                                                                   |
-| ---------------------------- | ----------------------------------------------------------------------------------------- |
-| `no-derived-state`           | `useEffect` is only setting state from a calculation of its deps — derive during render   |
-| `no-effect-memo`             | `useEffect` + `.filter()`/`.map()`/`.reduce()` — use `useMemo`                            |
-| `no-effect-event-handler`    | `useEffect` firing in response to a state flag set in an event handler — move to handler  |
-| `no-effect-reset-state`      | `useEffect` resetting all state on prop change — use a `key` prop instead                 |
-| `no-effect-adjust-state`     | `useEffect` partially adjusting state on prop change — derive the value during render     |
-| `no-effect-post-action`      | `useEffect` sending a request triggered by a flag — move the call into the event handler  |
-| `no-effect-chain`            | `useEffect` chain where one effect's `setState` triggers another — consolidate in handler |
-| `no-effect-notify-parent`    | `useEffect` calling a parent callback after `setState` — call both in the same handler    |
-| `no-effect-pass-data-parent` | Child `useEffect` passing fetched data to parent via setter — lift fetching to the parent |
-| `no-effect-app-init`         | `useEffect(fn, [])` for app-level init — use module-level code or a `didInit` guard       |
-
 All rules are `"warn"` in the recommended config. No autofixes — suggestions only.
+
+---
+
+**`no-derived-state`** — `useEffect` setting state from a pure calculation of its deps
+
+```tsx
+// ⚠ react-effectless/no-derived-state
+// Derive this value during render instead of syncing it with useEffect.
+// Use an inline calculation or useMemo.
+useEffect(() => {
+  setFullName(firstName + ' ' + lastName)
+}, [firstName, lastName])
+
+// ✓ fix
+const fullName = firstName + ' ' + lastName
+```
+
+---
+
+**`no-effect-memo`** — `useEffect` + `setState` with `.filter()` / `.map()` / `.reduce()` etc.
+
+```tsx
+// ⚠ react-effectless/no-effect-memo
+// Avoid using useEffect to compute derived array values.
+// Use useMemo(() => compute(), [deps]) instead.
+useEffect(() => {
+  setActive(items.filter((x) => x.active))
+}, [items])
+
+// ✓ fix
+const active = useMemo(() => items.filter((x) => x.active), [items])
+```
+
+---
+
+**`no-effect-event-handler`** — `useEffect` fires only because state was set inside an event handler
+
+```tsx
+// ⚠ react-effectless/no-effect-event-handler
+// This effect fires because of a state flag set in an event handler.
+// Move the logic into the handler directly.
+const [submitted, setSubmitted] = useState(false)
+useEffect(() => {
+  if (submitted) sendAnalytics()
+}, [submitted])
+
+// ✓ fix
+function handleSubmit() {
+  setSubmitted(true)
+  sendAnalytics()
+}
+```
+
+---
+
+**`no-effect-reset-state`** — `useEffect` resets all local state when a prop changes
+
+```tsx
+// ⚠ react-effectless/no-effect-reset-state
+// useEffect is resetting all state because a prop changed.
+// Pass a key prop to the component in the parent instead.
+useEffect(() => {
+  setPage(0)
+  setFilters([])
+  setSelection(null)
+}, [userId])
+
+// ✓ fix — in the parent
+<Profile key={userId} userId={userId} />
+```
+
+---
+
+**`no-effect-adjust-state`** — `useEffect` partially adjusts state when a prop changes
+
+```tsx
+// ⚠ react-effectless/no-effect-adjust-state
+// useEffect is adjusting state based on a prop change.
+// Derive the value during render instead.
+useEffect(() => {
+  if (items.length === 0) setSelection(null)
+}, [items])
+
+// ✓ fix
+const selection = items.length === 0 ? null : selection
+```
+
+---
+
+**`no-effect-post-action`** — `useEffect` sends a request triggered by a state flag
+
+```tsx
+// ⚠ react-effectless/no-effect-post-action
+// useEffect is reacting to a flag set in an event handler.
+// Move the API call into the event handler directly.
+const [saved, setSaved] = useState(false)
+useEffect(() => {
+  if (saved) api.save(data)
+}, [saved])
+
+// ✓ fix
+function handleSave() {
+  setSaved(true)
+  api.save(data)
+}
+```
+
+---
+
+**`no-effect-chain`** — multiple effects where one's `setState` is another's dep
+
+```tsx
+// ⚠ react-effectless/no-effect-chain
+// useEffect chain detected: one effect's setState triggers another effect.
+// Consolidate the logic into a single event handler.
+useEffect(() => {
+  setProcessed(transform(raw))
+}, [raw])
+useEffect(() => {
+  setOutput(format(processed))
+}, [processed])
+
+// ✓ fix
+function handleChange(raw) {
+  const processed = transform(raw)
+  setProcessed(processed)
+  setOutput(format(processed))
+}
+```
+
+---
+
+**`no-effect-notify-parent`** — `useEffect` calls a parent callback after `setState`
+
+```tsx
+// ⚠ react-effectless/no-effect-notify-parent
+// useEffect is calling a parent callback after setting state.
+// Call the callback alongside setState in the event handler.
+useEffect(() => {
+  onChange(value)
+}, [value])
+
+// ✓ fix
+function handleChange(next) {
+  setValue(next)
+  onChange(next)
+}
+```
+
+---
+
+**`no-effect-pass-data-parent`** — child `useEffect` passes fetched data up via a parent setter
+
+```tsx
+// ⚠ react-effectless/no-effect-pass-data-parent
+// A child component is fetching data and passing it to the parent via a setter prop.
+// Lift the data fetching to the parent instead.
+function Child({ onData }) {
+  useEffect(() => {
+    fetch('/api/data')
+      .then((r) => r.json())
+      .then(onData)
+  }, [onData])
+}
+
+// ✓ fix — fetch in the parent, pass data down as a prop
+```
+
+---
+
+**`no-effect-app-init`** — `useEffect(fn, [])` for one-time app-level initialization
+
+```tsx
+// ⚠ react-effectless/no-effect-app-init
+// useEffect with an empty dep array is used for app-level initialization.
+// Use module-level code or a didInit guard instead.
+useEffect(() => {
+  analytics.init()
+  featureFlags.load()
+}, [])
+
+// ✓ fix — module level, runs once when the module is imported
+analytics.init()
+featureFlags.load()
+```
+
+---
+
+| Rule                         | Short warning                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `no-derived-state`           | Derive during render instead of syncing with useEffect                            |
+| `no-effect-memo`             | Use `useMemo` instead of useEffect + setState with array methods                  |
+| `no-effect-event-handler`    | Move logic into the event handler — the effect fires only because of a state flag |
+| `no-effect-reset-state`      | Use a `key` prop in the parent instead of resetting state in an effect            |
+| `no-effect-adjust-state`     | Derive the value during render instead of adjusting state in an effect            |
+| `no-effect-post-action`      | Move the API call into the event handler — the effect is reacting to a flag       |
+| `no-effect-chain`            | Consolidate the effect chain into a single event handler                          |
+| `no-effect-notify-parent`    | Call the parent callback alongside setState in the handler                        |
+| `no-effect-pass-data-parent` | Lift data fetching to the parent                                                  |
+| `no-effect-app-init`         | Use module-level code or a `didInit` guard for one-time initialization            |
 
 </details>
 
