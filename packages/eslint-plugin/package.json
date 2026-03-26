@@ -2,8 +2,18 @@
   "name": "eslint-plugin-react-effectless",
   "version": "1.0.0",
   "type": "module",
+  "keywords": [
+    "eslint",
+    "eslint-plugin",
+    "react",
+    "useEffect",
+    "effectless",
+    "lint",
+    "hooks"
+  ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
