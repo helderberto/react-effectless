@@ -3,7 +3,7 @@ import { useEventSubscription } from '@/use-event-subscription'
 
 function makeTarget() {
   const listeners = new Map<string, Set<EventListener>>()
-  return {
+  const target = {
     addEventListener: vi.fn((event: string, handler: EventListener) => {
       if (!listeners.has(event)) listeners.set(event, new Set())
       listeners.get(event)!.add(handler)
@@ -15,6 +15,7 @@ function makeTarget() {
       listeners.get(event)?.forEach((h) => h(new Event(event)))
     },
   }
+  return target as unknown as typeof target & EventTarget
 }
 
 describe('useEventSubscription', () => {
