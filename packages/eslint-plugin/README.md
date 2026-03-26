@@ -1,5 +1,9 @@
 # eslint-plugin-react-effectless
 
+[![CI](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg)](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/dm/eslint-plugin-react-effectless)](https://www.npmjs.com/package/eslint-plugin-react-effectless)
+[![Coverage](https://img.shields.io/codecov/c/github/helderberto/react-effectless)](https://codecov.io/gh/helderberto/react-effectless)
+
 10 ESLint rules that detect `useEffect` anti-patterns and suggest the correct alternative for each case.
 
 ## Install

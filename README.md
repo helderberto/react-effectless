@@ -1,5 +1,9 @@
 # react-effectless
 
+[![CI](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg)](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/dm/react-effectless)](https://www.npmjs.com/package/react-effectless)
+[![Coverage](https://img.shields.io/codecov/c/github/helderberto/react-effectless)](https://codecov.io/gh/helderberto/react-effectless)
+
 An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
 
 ## Motivation

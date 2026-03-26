@@ -1,5 +1,9 @@
 # react-effectless
 
+[![CI](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg)](https://github.com/helderberto/react-effectless/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/dm/react-effectless)](https://www.npmjs.com/package/react-effectless)
+[![Coverage](https://img.shields.io/codecov/c/github/helderberto/react-effectless)](https://codecov.io/gh/helderberto/react-effectless)
+
 Hooks for the cases where `useEffect` is genuinely the right tool — without the common footguns.
 
 ## Install
