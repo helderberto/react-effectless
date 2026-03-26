@@ -66,7 +66,7 @@ describe('isComponentFunction', () => {
       FunctionDeclaration(node) {
         if (isComponentFunction(node)) context.report({ node, messageId: 'yes' })
       },
-      'VariableDeclarator > ArrowFunctionExpression'(node) {
+      'VariableDeclarator > ArrowFunctionExpression'(node: Rule.Node) {
         if (isComponentFunction(node)) context.report({ node, messageId: 'yes' })
       },
     }),
