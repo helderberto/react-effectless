@@ -1,6 +1,7 @@
 {
   "name": "eslint-plugin-react-effectless",
   "version": "1.0.5",
+  "license": "MIT",
   "type": "module",
   "keywords": [
     "eslint",

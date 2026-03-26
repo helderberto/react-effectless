@@ -1,6 +1,7 @@
 {
   "name": "react-effectless-monorepo",
   "version": "1.0.5",
+  "license": "MIT",
   "private": true,
   "workspaces": [
     "packages/*"
