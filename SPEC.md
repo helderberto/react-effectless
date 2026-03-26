@@ -315,6 +315,12 @@ All packages set `globals: true` in `vitest.config.ts`. Do not import `describe`
 
 No `any`. Use specific types where possible; fall back to `unknown` when the type cannot be determined. For ESLint rule authors, type rule objects as `Rule.RuleModule` to get full inference on `context` and node visitor parameters.
 
+## Code style
+
+- No inline `if` statements (no single-line `if (x) return y`)
+- Prefer early returns over nested `if`/`else`
+- Avoid `else` after a `return`
+
 ---
 
 ## Developer Tooling

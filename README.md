@@ -63,6 +63,41 @@ function UserList({ search }) {
 
 The pattern is widespread enough that teams have started banning `useEffect` outright — see [this thread from Factory](https://x.com/alvinsng/status/2033969062834045089).
 
+<details>
+<summary>Hook replacements for every legitimate useEffect use case</summary>
+
+| Instead of…                                  | Use                                                   |
+| -------------------------------------------- | ----------------------------------------------------- |
+| `useEffect(fn, [])` for mount-only logic     | `useOnMount(fn)`                                      |
+| `useEffect` + `fetch`                        | `useFetch(url)`                                       |
+| `useEffect` + `addEventListener`             | `useEventSubscription(target, event, handler)`        |
+| `useEffect` + external store subscription    | `useExternalSync(subscribe, getSnapshot)`             |
+| `useEffect` for page-view analytics          | `useAnalytics(event, props)`                          |
+| `useEffect` + third-party DOM library        | `useExternalWidget(factory, props)`                   |
+| `useEffect` + `setState` for a derived value | `useDerivedState(derive, deps)` or inline calculation |
+
+</details>
+
+<details>
+<summary>ESLint rules and the warnings they produce</summary>
+
+| Rule                         | Warning                                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `no-derived-state`           | `useEffect` is only setting state from a calculation of its deps — derive during render   |
+| `no-effect-memo`             | `useEffect` + `.filter()`/`.map()`/`.reduce()` — use `useMemo`                            |
+| `no-effect-event-handler`    | `useEffect` firing in response to a state flag set in an event handler — move to handler  |
+| `no-effect-reset-state`      | `useEffect` resetting all state on prop change — use a `key` prop instead                 |
+| `no-effect-adjust-state`     | `useEffect` partially adjusting state on prop change — derive the value during render     |
+| `no-effect-post-action`      | `useEffect` sending a request triggered by a flag — move the call into the event handler  |
+| `no-effect-chain`            | `useEffect` chain where one effect's `setState` triggers another — consolidate in handler |
+| `no-effect-notify-parent`    | `useEffect` calling a parent callback after `setState` — call both in the same handler    |
+| `no-effect-pass-data-parent` | Child `useEffect` passing fetched data to parent via setter — lift fetching to the parent |
+| `no-effect-app-init`         | `useEffect(fn, [])` for app-level init — use module-level code or a `didInit` guard       |
+
+All rules are `"warn"` in the recommended config. No autofixes — suggestions only.
+
+</details>
+
 ### The goal is not to remove `useEffect`
 
 `useEffect` is the right tool for genuine side effects: syncing with external systems, setting up subscriptions, integrating third-party DOM libraries. That use case is real and valid.

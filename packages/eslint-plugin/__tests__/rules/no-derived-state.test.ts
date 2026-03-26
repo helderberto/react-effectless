@@ -12,12 +12,11 @@ const tester = new RuleTester({
 })
 
 describe('no-derived-state', () => {
-  it('passes valid cases and flags invalid cases', () => {
-    tester.run('no-derived-state', rule, {
-      valid: [
-        // fetch side effect — legitimate useEffect
-        {
-          code: `
+  tester.run('no-derived-state', rule, {
+    valid: [
+      // fetch side effect — legitimate useEffect
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Component({ id }) {
               const [data, setData] = useState(null)
@@ -26,10 +25,10 @@ describe('no-derived-state', () => {
               }, [id])
             }
           `,
-        },
-        // subscription — legitimate useEffect
-        {
-          code: `
+      },
+      // subscription — legitimate useEffect
+      {
+        code: `
             import { useEffect } from 'react'
             function Component({ store }) {
               useEffect(() => {
@@ -38,10 +37,10 @@ describe('no-derived-state', () => {
               }, [store])
             }
           `,
-        },
-        // DOM manipulation — legitimate useEffect
-        {
-          code: `
+      },
+      // DOM manipulation — legitimate useEffect
+      {
+        code: `
             import { useEffect, useRef } from 'react'
             function Component() {
               const ref = useRef(null)
@@ -50,28 +49,28 @@ describe('no-derived-state', () => {
               }, [])
             }
           `,
-        },
-        // inline calculation — already correct pattern
-        {
-          code: `
+      },
+      // inline calculation — already correct pattern
+      {
+        code: `
             function Component({ a, b }) {
               const sum = a + b
               return sum
             }
           `,
-        },
-        // useMemo — already correct pattern
-        {
-          code: `
+      },
+      // useMemo — already correct pattern
+      {
+        code: `
             import { useMemo } from 'react'
             function Component({ items }) {
               const sorted = useMemo(() => [...items].sort(), [items])
             }
           `,
-        },
-        // custom hook using useEffect internally — must not be flagged
-        {
-          code: `
+      },
+      // custom hook using useEffect internally — must not be flagged
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function useCustomHook(dep) {
               const [val, setVal] = useState(null)
@@ -81,10 +80,10 @@ describe('no-derived-state', () => {
               return val
             }
           `,
-        },
-        // renamed import but effect does not purely derive state
-        {
-          code: `
+      },
+      // renamed import but effect does not purely derive state
+      {
+        code: `
             import { useEffect as ue, useState } from 'react'
             function Component({ id }) {
               const [data, setData] = useState(null)
@@ -93,10 +92,10 @@ describe('no-derived-state', () => {
               }, [id])
             }
           `,
-        },
-        // nested component — inner component effect is legitimate fetch
-        {
-          code: `
+      },
+      // nested component — inner component effect is legitimate fetch
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Outer() {
               function Inner({ id }) {
@@ -107,12 +106,12 @@ describe('no-derived-state', () => {
               }
             }
           `,
-        },
-      ],
-      invalid: [
-        // pure prop → state derivation
-        {
-          code: `
+      },
+    ],
+    invalid: [
+      // pure prop → state derivation
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Component({ userId }) {
               const [id, setId] = useState(userId)
@@ -121,11 +120,11 @@ describe('no-derived-state', () => {
               }, [userId])
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-        // arithmetic derivation
-        {
-          code: `
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+      // arithmetic derivation
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Component({ a, b }) {
               const [sum, setSum] = useState(0)
@@ -134,11 +133,11 @@ describe('no-derived-state', () => {
               }, [a, b])
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-        // string concat derivation
-        {
-          code: `
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+      // string concat derivation
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Component({ first, last }) {
               const [full, setFull] = useState('')
@@ -147,11 +146,11 @@ describe('no-derived-state', () => {
               }, [first, last])
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-        // prop passed directly to setState
-        {
-          code: `
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+      // prop passed directly to setState
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Component({ value }) {
               const [local, setLocal] = useState(value)
@@ -160,11 +159,11 @@ describe('no-derived-state', () => {
               }, [value])
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-        // renamed import — same anti-pattern
-        {
-          code: `
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+      // renamed import — same anti-pattern
+      {
+        code: `
             import { useEffect as ue, useState } from 'react'
             function Component({ count }) {
               const [doubled, setDoubled] = useState(0)
@@ -173,11 +172,11 @@ describe('no-derived-state', () => {
               }, [count])
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-        // nested component — inner component has anti-pattern
-        {
-          code: `
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+      // nested component — inner component has anti-pattern
+      {
+        code: `
             import { useEffect, useState } from 'react'
             function Outer() {
               function Inner({ value }) {
@@ -188,9 +187,8 @@ describe('no-derived-state', () => {
               }
             }
           `,
-          errors: [{ messageId: 'noDerivedState' }],
-        },
-      ],
-    })
+        errors: [{ messageId: 'noDerivedState' }],
+      },
+    ],
   })
 })
