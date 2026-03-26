@@ -602,7 +602,24 @@ jobs:
 
 ### Phase 3 — Hooks Library (TDD)
 
-1. `useOnMount`
+#### Conventions
+
+- Hook files: `packages/hooks/src/use-<name>.ts` (kebab-case)
+- Tests: `packages/hooks/__tests__/use-<name>.test.ts`
+- Exports: re-export all hooks from `src/index.ts`
+- Test environment: `jsdom` (configured in `vitest.config.ts`); `globals: true` — do not import from `'vitest'`
+- Test utility: `renderHook` from `@testing-library/react` for all hook tests
+- No build step — package exports TypeScript source directly via `"exports": { ".": "./src/index.ts" }`
+- `peerDependencies: { react: ">=16.8.0" }`
+
+#### Standard test cases per hook
+
+- Callback runs on the expected trigger
+- Callback does NOT run unexpectedly (no re-run on re-render if not expected)
+- Cleanup runs on unmount if hook returns one
+- Edge cases specific to the hook (optional `delay: null`, etc.)
+
+1. ✓ `useOnMount` — `useEffect(cb, [])` with explicit intent; 4 tests
 2. `useEventSubscription`
 3. `useDebounce`
 4. `useInterval`
