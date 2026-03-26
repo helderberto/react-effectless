@@ -123,7 +123,7 @@ function childNodes(node: Node): Node[] {
   const children: Node[] = []
   for (const key of Object.keys(node)) {
     if (SKIP_KEYS.has(key)) continue
-    const val = (node as Record<string, unknown>)[key]
+    const val = (node as unknown as Record<string, unknown>)[key]
     if (Array.isArray(val)) {
       for (const item of val) {
         if (item && typeof item === 'object' && 'type' in item) children.push(item as Node)

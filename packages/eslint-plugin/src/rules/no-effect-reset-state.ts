@@ -85,7 +85,7 @@ function isResetSetterCall(expr: Node): boolean {
   if (call.callee.type !== 'Identifier') return false
   if (!(call.callee as { name: string }).name.startsWith('set')) return false
   if (call.arguments.length !== 1) return false
-  return isResetValue(call.arguments[0])
+  return call.arguments[0] !== undefined && isResetValue(call.arguments[0])
 }
 
 function isResetValue(node: Node): boolean {
