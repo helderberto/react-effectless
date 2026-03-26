@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/helderberto/react-effectless/compare/v1.0.1...v1.0.2) (2026-03-26)
+
+
+### Bug Fixes
+
+* move eslint ignores to top-level config object for global effect ([85af56e](https://github.com/helderberto/react-effectless/commit/85af56e74a57bdcc7a43d8d538c48c5bfd10e612))
+
 ## [1.0.1](https://github.com/helderberto/react-effectless/compare/v1.0.0...v1.0.1) (2026-03-26)
 
 # 1.0.0 (2026-03-26)
