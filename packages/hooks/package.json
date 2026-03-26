@@ -6,12 +6,12 @@
     ".": "./src/index.ts"
   },
   "bin": {
-    "react-effectless": "../../bin/init.ts"
+    "react-effectless": "./bin/init.ts"
   },
   "files": [
     "src",
-    "../../bin/init.ts",
-    "../../agent-skills"
+    "bin",
+    "agent-skills"
   ],
   "scripts": {
     "build": "echo 'no build step — publishes TypeScript source'",
