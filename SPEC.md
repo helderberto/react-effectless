@@ -595,10 +595,10 @@ jobs:
 3. ✓ `no-effect-memo` — setState with array transform methods → useMemo
 4. ✓ `no-effect-app-init` — useEffect(fn, []) for init → module-level code
 5. ✓ `no-effect-reset-state`, `no-effect-adjust-state`
-6. `no-effect-notify-parent`, `no-effect-post-action` ← NEXT
-7. `no-effect-chain` (hardest — requires dep graph across effects)
-8. `no-effect-event-handler`, `no-effect-pass-data-parent` (most heuristic)
-9. Plugin entry with flat + legacy configs
+6. ✓ `no-effect-notify-parent`, `no-effect-post-action`
+7. ✓ `no-effect-chain` (component-accumulator, cross-effect dep graph)
+8. ✓ `no-effect-event-handler`, `no-effect-pass-data-parent` (most heuristic)
+9. ✓ Plugin entry with flat + legacy configs — 155 tests green
 
 ### Phase 3 — Hooks Library (TDD)
 
