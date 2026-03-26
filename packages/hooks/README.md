@@ -1,21 +1,17 @@
-# react-effectless
-
 <div align="center">
+  <h1>📦 react-effectless</h1>
 
-[![Build Status][build-badge]][build]
+  <p>
+    <strong>Hooks for the cases where `useEffect` is genuinely the right tool — without the common footguns.</strong>
+  </p>
+
+<!-- prettier-ignore-start -->
+[![Release][build-badge]][build]
 [![Downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
+<!-- prettier-ignore-end -->
 
 </div>
-
-[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg?style=flat-square
-[build]: https://github.com/helderberto/react-effectless/actions
-[downloads-badge]: https://img.shields.io/npm/dm/react-effectless.svg?style=flat-square
-[npmtrends]: http://www.npmtrends.com/react-effectless
-[license-badge]: https://img.shields.io/npm/l/react-effectless.svg?style=flat-square
-[license]: https://github.com/helderberto/react-effectless/blob/main/packages/hooks/LICENSE
-
-Hooks for the cases where `useEffect` is genuinely the right tool — without the common footguns.
 
 ## Install
 
@@ -191,4 +187,13 @@ The raw templates live in [`agent-skills/`](https://github.com/helderberto/react
 
 ## License
 
-[MIT](https://github.com/helderberto/react-effectless/blob/main/LICENSE) © Helder Burato Berto
+[MIT](./LICENSE) © [helderberto](https://helderberto.com)
+
+<!-- prettier-ignore-start -->
+[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml/badge.svg?style=flat-square
+[build]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml
+[downloads-badge]: https://img.shields.io/npm/dm/react-effectless.svg?style=flat-square
+[npmtrends]: http://www.npmtrends.com/react-effectless
+[license-badge]: https://img.shields.io/npm/l/react-effectless.svg?style=flat-square
+[license]: https://github.com/helderberto/react-effectless/blob/main/packages/hooks/LICENSE
+<!-- prettier-ignore-end -->

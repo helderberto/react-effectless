@@ -1,19 +1,12 @@
-# react-effectless
-
 <div align="center">
+  <h1>📦 react-effectless</h1>
 
-[![Build Status][build-badge]][build]
-[![Downloads][downloads-badge]][npmtrends]
+<!-- prettier-ignore-start -->
+[![build][build-badge]][build]
 [![MIT License][license-badge]][license]
+<!-- prettier-ignore-end -->
 
 </div>
-
-[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg?style=flat-square
-[build]: https://github.com/helderberto/react-effectless/actions
-[downloads-badge]: https://img.shields.io/npm/dm/react-effectless.svg?style=flat-square
-[npmtrends]: http://www.npmtrends.com/react-effectless
-[license-badge]: https://img.shields.io/npm/l/react-effectless.svg?style=flat-square
-[license]: https://github.com/helderberto/react-effectless/blob/main/LICENSE
 
 An npm monorepo providing tools to eliminate unnecessary `useEffect` usage in React codebases: an ESLint plugin, a hooks library, and an AI agent skill bootstrapper.
 
@@ -113,9 +106,16 @@ npm install
 
 ## License
 
-[MIT](./LICENSE) © Helder Burato Berto
+[MIT](./LICENSE) © [helderberto](https://helderberto.com)
 
 ## References
 
 - [You Might Not Need an Effect — React Docs](https://react.dev/learn/you-might-not-need-an-effect)
 - [Factory's useEffect ban](https://x.com/alvinsng/status/2033969062834045089)
+
+<!-- prettier-ignore-start -->
+[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml/badge.svg?style=flat-square
+[build]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml
+[license-badge]: https://img.shields.io/npm/l/react-effectless.svg?style=flat-square
+[license]: https://github.com/helderberto/react-effectless/blob/main/LICENSE
+<!-- prettier-ignore-end -->

@@ -1,21 +1,17 @@
-# eslint-plugin-react-effectless
-
 <div align="center">
+  <h1>📦 eslint-plugin-react-effectless</h1>
 
-[![Build Status][build-badge]][build]
+  <p>
+    <strong>10 ESLint rules that detect `useEffect` anti-patterns and suggest the correct alternative for each case.</strong>
+  </p>
+
+<!-- prettier-ignore-start -->
+[![Release][build-badge]][build]
 [![Downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
+<!-- prettier-ignore-end -->
 
 </div>
-
-[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/ci.yml/badge.svg?style=flat-square
-[build]: https://github.com/helderberto/react-effectless/actions
-[downloads-badge]: https://img.shields.io/npm/dm/eslint-plugin-react-effectless.svg?style=flat-square
-[npmtrends]: http://www.npmtrends.com/eslint-plugin-react-effectless
-[license-badge]: https://img.shields.io/npm/l/eslint-plugin-react-effectless.svg?style=flat-square
-[license]: https://github.com/helderberto/react-effectless/blob/main/packages/eslint-plugin/LICENSE
-
-10 ESLint rules that detect `useEffect` anti-patterns and suggest the correct alternative for each case.
 
 ## Install
 
@@ -300,4 +296,13 @@ Pair this plugin with [`react-effectless`](https://www.npmjs.com/package/react-e
 
 ## License
 
-[MIT](https://github.com/helderberto/react-effectless/blob/main/LICENSE) © Helder Burato Berto
+[MIT](./LICENSE) © [helderberto](https://helderberto.com)
+
+<!-- prettier-ignore-start -->
+[build-badge]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml/badge.svg?style=flat-square
+[build]: https://github.com/helderberto/react-effectless/actions/workflows/release.yml
+[downloads-badge]: https://img.shields.io/npm/dm/eslint-plugin-react-effectless.svg?style=flat-square
+[npmtrends]: http://www.npmtrends.com/eslint-plugin-react-effectless
+[license-badge]: https://img.shields.io/npm/l/eslint-plugin-react-effectless.svg?style=flat-square
+[license]: https://github.com/helderberto/react-effectless/blob/main/packages/eslint-plugin/LICENSE
+<!-- prettier-ignore-end -->
