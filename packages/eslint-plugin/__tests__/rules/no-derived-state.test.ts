@@ -1,15 +1,5 @@
-import { RuleTester } from 'eslint'
 import rule from '@/rules/no-derived-state'
-
-const tester = new RuleTester({
-  languageOptions: {
-    parserOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      ecmaFeatures: { jsx: true },
-    },
-  },
-})
+import { tester } from '../rule-tester'
 
 describe('no-derived-state', () => {
   tester.run('no-derived-state', rule, {
@@ -120,7 +110,12 @@ describe('no-derived-state', () => {
               }, [userId])
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
       // arithmetic derivation
       {
@@ -133,7 +128,12 @@ describe('no-derived-state', () => {
               }, [a, b])
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
       // string concat derivation
       {
@@ -146,7 +146,12 @@ describe('no-derived-state', () => {
               }, [first, last])
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
       // prop passed directly to setState
       {
@@ -159,7 +164,12 @@ describe('no-derived-state', () => {
               }, [value])
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
       // renamed import — same anti-pattern
       {
@@ -172,7 +182,12 @@ describe('no-derived-state', () => {
               }, [count])
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
       // nested component — inner component has anti-pattern
       {
@@ -187,7 +202,12 @@ describe('no-derived-state', () => {
               }
             }
           `,
-        errors: [{ messageId: 'noDerivedState' }],
+        errors: [
+          {
+            message:
+              'Derive this value during render instead of syncing it with useEffect. Use an inline calculation or useMemo.',
+          },
+        ],
       },
     ],
   })
