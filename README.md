@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>📦 react-effectless</h1>
+  <h1>🪝 react-effectless</h1>
 
 <!-- prettier-ignore-start -->
 [![build][build-badge]][build]

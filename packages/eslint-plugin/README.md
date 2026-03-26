@@ -6,7 +6,7 @@
   </p>
 
 <!-- prettier-ignore-start -->
-[![Release][build-badge]][build]
+[![build][build-badge]][build]
 [![Downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
 <!-- prettier-ignore-end -->

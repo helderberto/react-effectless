@@ -1,12 +1,12 @@
 <div align="center">
-  <h1>📦 react-effectless</h1>
+  <h1>🪝 react-effectless</h1>
 
   <p>
     <strong>Hooks for the cases where `useEffect` is genuinely the right tool — without the common footguns.</strong>
   </p>
 
 <!-- prettier-ignore-start -->
-[![Release][build-badge]][build]
+[![build][build-badge]][build]
 [![Downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
 <!-- prettier-ignore-end -->
